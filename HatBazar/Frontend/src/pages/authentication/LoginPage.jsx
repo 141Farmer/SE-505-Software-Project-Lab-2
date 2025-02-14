@@ -77,7 +77,7 @@ const LoginPage = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
-        credentials: 'include',
+        // credentials: 'include',        this is used when we allow some selective urls to access
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,

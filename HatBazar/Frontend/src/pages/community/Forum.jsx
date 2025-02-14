@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import ForumPost from '../../components/Community/Post';
 import SearchBar from '../../components/Community/SearchBar';
-import CreatePostButton from '../../components/Community/CreatePostButton';
+import CreatePostButton from '../../components/community/CreatePostButton';
 import Modal from '../../components/Community/Modal';
 
 function Forum() {
@@ -29,7 +29,7 @@ function Forum() {
       date: '11/01/2025',
       title: 'how to invest optimally?', 
       content: 'Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...Looking for effective methods to prevent pests without chemicals...',
-      comments: ['Neem oil works wonders!', 'Try companion planting for pest control.']
+      comments: []
     },
     
   ]);
