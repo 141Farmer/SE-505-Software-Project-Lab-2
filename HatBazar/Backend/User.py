@@ -17,10 +17,7 @@ class User:
 
 
     def register(self, username, fullname, email, phone, password):
-        self._username = username
-        self._fullname = fullname
-        self._email = email
-        self._phoneNumber = phone
+        self.__init__(username, fullname, email, phone)
 
         db_user = UserTable(username=self._username, fullname=self._fullname, email=self._email, 
                             phone=self._phoneNumber, hashed_password=AuthHandler.get_password_hash(password))
@@ -44,10 +41,7 @@ class User:
             if not AuthHandler.verify_password(password, db_user.hashed_password):
                 raise HTTPException(status_code=401, detail="Incorrect password!")
             
-            self._username = db_user.username
-            self._fullname = db_user.fullname
-            self._email = db_user.email
-            self._phoneNumber = db_user.phone
+            self.__init__(db_user.username, db_user.fullname, db_user.email, db_user.phone)
             
             access_token = AuthHandler.create_access_token(data={"sub": db_user.username})
 
@@ -63,8 +57,27 @@ class User:
     )
 
 
-    def updateProfile(self, ):
-        pass
+    def updateProfile(self, fullname=None, email=None, phoneNumber=None):
+        
+        with Database.get_session() as session:
+            query = select(UserTable).where(UserTable.username == self._username)
+            userToUpdate = session.exec(query).first()
+
+            if not userToUpdate:
+                return HTTPException(status_code=404, detail="User not found!!")
+            
+            userToUpdate.fullname = fullname
+            userToUpdate.email = email
+            userToUpdate.phone = phoneNumber
+            session.add(userToUpdate)
+            session.commit()
+            session.refresh(userToUpdate)
+            self._fullname = fullname
+            self._email = email
+            self._phoneNumber = phoneNumber
+            return {"message": "User updated successfully"}
+
+        
 
 
     # def logout(self, ):               # handled in frontend
@@ -81,6 +94,7 @@ class User:
             
             session.delete(userToDelete)
             session.commit()
+            session.refresh(userToDelete)
             self.__init__()
             return {"message": "User deleted successfully"}
             

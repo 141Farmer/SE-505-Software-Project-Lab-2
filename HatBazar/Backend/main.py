@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from Database import Database
 from User import User
 from models import UserTable, InvestorTable, FarmTable, ProductTable
-from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse
+from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
 from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
 from schemas import CreateProduct, CreateProductResponse, GetProductResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -13,13 +13,6 @@ from AuthHandler import AuthHandler
 
 
 app = FastAPI()
-
-# origins = [
-#     "http://localhost:5173",
-#     "http://localhost:5173/",
-#     "http://127.0.0.1:5173",
-#     "http://127.0.0.1:5173/"
-# ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -38,30 +31,25 @@ def signup(userInfo: UserCreate):
     return user.register(userInfo.username, userInfo.fullname, userInfo.email, userInfo.phoneNumber, userInfo.password)
 
 
-
 @app.post("/login/", response_model=LoginResponse)
 def login(userLogin: UserLogin):
     return user.login(userLogin.username, userLogin.password)
 
 
-
 @app.get("/dashboard/", response_model=DashBoardResponse)
-def getDashBoard():                    #(current_user: User = Depends(AuthHandler.get_current_user)):
-    # return DashBoardResponse(
-    #     username=current_user.username,
-    #     fullname=current_user.fullname,
-    #     email=current_user.email,
-    #     phone=current_user.phone
-    # )
-
+def getDashBoard():
     return user.viewDashboard()
 
 
+@app.put("/updateuser/", response_model=dict)
+def updateUser(userToUpdate: UpdateUser):
+    print(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
+    return user.updateProfile(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
+
 
 @app.delete("/deleteuser/", response_model=dict)
-def deleteuser():
+def deleteUser():
     return user.deleteAccount()
-
 
 
 @app.post("/createfarm/", response_model=CreateFarmResponse)

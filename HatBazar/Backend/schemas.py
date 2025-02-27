@@ -11,6 +11,14 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+
+class UpdateUser(BaseModel):
+    username: str | None
+    fullname: str | None
+    email: str | None
+    phoneNumber: str | None
+
+
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
