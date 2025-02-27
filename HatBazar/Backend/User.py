@@ -3,7 +3,7 @@ from sqlmodel import select
 from Database import Database
 from AuthHandler import AuthHandler
 from models import UserTable
-from schemas import LoginResponse
+from schemas import LoginResponse, DashBoardResponse
 
 
 class User:
@@ -54,16 +54,36 @@ class User:
             return LoginResponse(access_token=access_token, token_type="bearer")
 
 
-    def viewDashboard(self):
-        pass
+    def viewDashboard(self) -> DashBoardResponse:
+        return DashBoardResponse(
+        username=self._username,
+        fullname=self._fullname,
+        email=self._email,
+        phone=self._phoneNumber
+    )
 
 
     def updateProfile(self, ):
         pass
 
 
-    def logout(self, ):
-        pass
+    # def logout(self, ):               # handled in frontend
+    #     pass                          #instead there should be deleteAccount()
+
+
+    def deleteAccount(self) -> dict:
+        with Database.get_session() as session:
+            query = select(UserTable).where(UserTable.username == self._username)
+            userToDelete = session.exec(query).first()
+
+            if not userToDelete:
+                return HTTPException(status_code=404, detail="User not found!!")
+            
+            session.delete(userToDelete)
+            session.commit()
+            self.__init__()
+            return {"message": "User deleted successfully"}
+            
 
 
     def manageNotification(self, ):

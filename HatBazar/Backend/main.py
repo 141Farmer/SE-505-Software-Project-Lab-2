@@ -46,13 +46,21 @@ def login(userLogin: UserLogin):
 
 
 @app.get("/dashboard/", response_model=DashBoardResponse)
-def getDashBoard(current_user: User = Depends(AuthHandler.get_current_user)):
-    return DashBoardResponse(
-        username=current_user.username,
-        fullname=current_user.fullname,
-        email=current_user.email,
-        phone=current_user.phone
-    )
+def getDashBoard():                    #(current_user: User = Depends(AuthHandler.get_current_user)):
+    # return DashBoardResponse(
+    #     username=current_user.username,
+    #     fullname=current_user.fullname,
+    #     email=current_user.email,
+    #     phone=current_user.phone
+    # )
+
+    return user.viewDashboard()
+
+
+
+@app.delete("/deleteuser/", response_model=dict)
+def deleteuser():
+    return user.deleteAccount()
 
 
 

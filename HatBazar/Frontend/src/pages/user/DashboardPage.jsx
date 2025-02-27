@@ -58,9 +58,34 @@ const Dashboard = () => {
     window.location.href = '/login';
   };
 
-  const handleDeleteAccount = () => {
-    console.log('Deleting account...');
-  };
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/deleteuser/", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            // credentials: "include", // Include cookies if authentication is based on them
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Failed to delete account");
+        }
+
+        alert("Account deleted successfully.");
+        // Optionally, redirect to login or home page after deletion
+        localStorage.removeItem('token');
+        window.location.href = "/";
+      } catch (error) {
+          console.error("Error deleting account:", error);
+          alert("Error: " + error.message);
+      }
+  }
 
   if (!userInfoCard) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -68,12 +93,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-green-50">
-      {/* Add the Navbar component here */}
       <Navbar />
 
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-3">
               <Leaf className="h-8 w-8 text-green-600" />
@@ -81,7 +104,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Profile Card */}
           <div className="bg-white p-6 rounded-lg shadow-lg border border-green-100">
             <div className="flex items-center gap-4 mb-6">
               <img
