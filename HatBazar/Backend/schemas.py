@@ -28,6 +28,7 @@ class DashBoardResponse(BaseModel):
     fullname: str
     email: str
     phone: str
+    profile_photo_url: str | None
 
 class CreateFarm(BaseModel):
     user_id: int 

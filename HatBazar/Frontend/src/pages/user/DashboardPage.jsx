@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Leaf, 
   LogOut, 
@@ -8,7 +8,9 @@ import {
   Mail,
   Edit,
   Save,
-  X
+  X,
+  Upload,
+  Camera
 } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 
@@ -20,6 +22,10 @@ const Dashboard = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   const fetchUserInfo = async () => {
     try {
@@ -51,11 +57,17 @@ const Dashboard = () => {
   useEffect(() => {
     const getUserInfo = async () => {
       const userInfo = await fetchUserInfo();
+      console.log(userInfo);
       if (!userInfo) {
         window.location.href = '/login';
       } else {
         setUserInfoCard(userInfo);
         setEditedUser(userInfo);
+        // If user has a profile image set it here
+        if (userInfo.profile_photo_url) {
+          // console.log(profileImage)
+          setImagePreview(userInfo.profile_photo_url);
+        }
       }
     };
   
@@ -149,7 +161,7 @@ const Dashboard = () => {
         headers: {
           'Accept': 'application/json',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // 'Authorization': `Bearer ${token}`,      #eita dile backend e get_current_user diye check korte hoy
         },
         body: JSON.stringify(payload),
       });
@@ -189,7 +201,84 @@ const Dashboard = () => {
     }
   };
 
-  
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select an image file.');
+      return;
+    }
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size should be less than 5MB.');
+      return;
+    }
+
+    setProfileImage(file);
+    
+    // Create a preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const uploadProfileImage = async () => {
+    if (!profileImage) return;
+    
+    setIsUploadingImage(true);
+    setErrorMessage('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const formData = new FormData();
+      formData.append('file', profileImage);
+
+      const response = await fetch('http://127.0.0.1:8000/upload-profile-image/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      
+      // Update user info with new image URL
+      setUserInfoCard(prev => ({
+        ...prev,
+        profileImage: data.imageUrl
+      }));
+      
+      setSuccessMessage('Profile picture updated successfully!');
+      
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      setErrorMessage(`Upload failed: ${error.message}`);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   if (!userInfoCard) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -223,16 +312,42 @@ const Dashboard = () => {
           <div className="bg-white p-6 rounded-lg shadow-lg border border-green-100">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <img
-                  src="do it form backend"
-                  alt="Profile"
-                  className="w-20 h-20 rounded-full border-2 border-green-600"
-                />
+                <div className="relative">
+                  <img
+                    src={imagePreview || "https://via.placeholder.com/150"}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full border-2 border-green-600 object-cover"
+                  />
+                  <button 
+                    onClick={triggerFileInput}
+                    className="absolute bottom-0 right-0 bg-green-600 text-white p-1 rounded-full hover:bg-green-700 transition-colors"
+                    title="Change profile picture"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    className="hidden" 
+                  />
+                </div>
                 <div>
                   {!isEditing ? (
                     <>
                       <h2 className="text-2xl font-semibold text-green-800">{userInfoCard.fullname}</h2>
                       <p className="text-gray-600">{userInfoCard.username}</p>
+                      {profileImage && (
+                        <button
+                          onClick={uploadProfileImage}
+                          disabled={isUploadingImage}
+                          className={`mt-2 text-sm ${isUploadingImage ? 'bg-gray-400' : 'bg-green-600'} text-white px-2 py-1 rounded flex items-center`}
+                        >
+                          <Upload className="h-3 w-3 mr-1" />
+                          {isUploadingImage ? 'Uploading...' : 'Upload New Photo'}
+                        </button>
+                      )}
                     </>
                   ) : (
                     <div className="space-y-2">

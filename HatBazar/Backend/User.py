@@ -6,13 +6,15 @@ from models import UserTable
 from schemas import LoginResponse, DashBoardResponse
 
 
+
 class User:
 
-    def __init__(self, username=None, fullname=None, email=None, phoneNumber=None, hashedPassword=None):
+    def __init__(self, username=None, fullname=None, email=None, phoneNumber=None, profile_photo_url=None, hashedPassword=None):
         self._username = username
         self._fullname = fullname
         self._email = email
         self._phoneNumber = phoneNumber
+        self._profile_photo_url = profile_photo_url
         self._hashedPassword = hashedPassword
 
 
@@ -49,12 +51,19 @@ class User:
 
 
     def viewDashboard(self) -> DashBoardResponse:
-        return DashBoardResponse(
-        username=self._username,
-        fullname=self._fullname,
-        email=self._email,
-        phone=self._phoneNumber
-    )
+        with Database.get_session() as session:
+            query = select(UserTable).where(UserTable.username==self._username)
+            profile_photo_url_relative = session.exec(query).first().profile_photo
+            self._profile_photo_url = f"http://127.0.0.1:8000{profile_photo_url_relative}"
+            print(self._profile_photo_url)
+
+            return DashBoardResponse(
+                username=self._username,
+                fullname=self._fullname,
+                email=self._email,
+                phone=self._phoneNumber,
+                profile_photo_url=self._profile_photo_url
+            )
 
 
     def updateProfile(self, fullname=None, email=None, phoneNumber=None):

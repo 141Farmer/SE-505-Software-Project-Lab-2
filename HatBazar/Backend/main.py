@@ -1,4 +1,6 @@
-from fastapi import Depends, FastAPI, HTTPException
+from pathlib import Path
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from Database import Database
 from User import User
@@ -7,9 +9,9 @@ from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, Upd
 from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
 from schemas import CreateProduct, CreateProductResponse, GetProductResponse
 from fastapi.middleware.cors import CORSMiddleware
-# from HatBazar.Backend.AuthHandler import create_access_token, decode_access_token, get_password_hash, verify_password
-# from current_user_handler import get_current_user
 from AuthHandler import AuthHandler
+from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
+from ImageHandler import ImageHandler
 
 
 app = FastAPI()
@@ -23,6 +25,9 @@ app.add_middleware(
 )
 
 Database.create_db_and_tables()
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
 user = User()
 
 
@@ -50,6 +55,11 @@ def updateUser(userToUpdate: UpdateUser):
 @app.delete("/deleteuser/", response_model=dict)
 def deleteUser():
     return user.deleteAccount()
+
+
+@app.post("/upload-profile-image/")
+async def upload_profile_image(file: UploadFile = File(...), current_user = Depends(AuthHandler.get_current_user)):
+    return ImageHandler.uploadProfilePhoto(file, current_user.username)
 
 
 @app.post("/createfarm/", response_model=CreateFarmResponse)
