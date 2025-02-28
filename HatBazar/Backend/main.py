@@ -130,8 +130,7 @@ def createProduct(createProduct: CreateProduct):
         session.commit()
         session.refresh(db_product)
         print(db_product)
-        return CreateProductResponse(
-            msg="Success",product_name=createProduct.product_name)
+        return CreateProductResponse(msg="Success",product_name=createProduct.product_name)
 
 
 
