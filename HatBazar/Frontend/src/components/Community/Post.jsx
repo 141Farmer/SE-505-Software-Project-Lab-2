@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 
 function ForumPost({ post }) {
   const [showFullContent, setShowFullContent] = useState(false);
@@ -9,29 +9,21 @@ function ForumPost({ post }) {
   const [showComments, setShowComments] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [comments, setComments] = useState(post.comments || []);
-  const [isTruncated, setIsTruncated] = useState(false);
-
-  const contentRef = useRef(null);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      // Check if the content exceeds 5 lines
-      const lineHeight = parseInt(window.getComputedStyle(contentRef.current).lineHeight, 10);
-      const maxHeight = lineHeight * 5; // 5 lines
-      setIsTruncated(contentRef.current.scrollHeight > maxHeight);
-    }
-  }, [post.content]);
 
   const handleUpvote = () => {
     if (isUpvoted) {
+      // Remove upvote
       setUpvoteCount(upvoteCount - 1);
       setIsUpvoted(false);
-    } else if (!isUpvoted && isDownvoted) {
+    }
+    else if (!isUpvoted && isDownvoted) {
       setUpvoteCount(upvoteCount + 1);
       setIsUpvoted(true);
       setDownvoteCount(downvoteCount - 1);
       setIsDownvoted(false);
-    } else {
+    }
+    else {
+      // Add upvote
       setUpvoteCount(upvoteCount + 1);
       setIsUpvoted(true);
     }
@@ -39,14 +31,17 @@ function ForumPost({ post }) {
 
   const handleDownvote = () => {
     if (isDownvoted) {
+      // Remove downvote
       setDownvoteCount(downvoteCount - 1);
       setIsDownvoted(false);
-    } else if (isUpvoted && !isDownvoted) {
+    } 
+    else if (isUpvoted && !isDownvoted) {
       setDownvoteCount(downvoteCount + 1);
       setIsDownvoted(true);
       setUpvoteCount(upvoteCount - 1);
       setIsUpvoted(false);
-    } else {
+    }else {
+      // Add downvote
       setDownvoteCount(downvoteCount + 1);
       setIsDownvoted(true);
     }
@@ -62,39 +57,22 @@ function ForumPost({ post }) {
   };
 
   return (
-    <div className="border rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg max-w-4xl mx-auto">
+    <div className="border rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
       {/* User and Date Info */}
       <div className="flex justify-between items-center mb-3">
-        <span className="text-green-600 font-medium">Posted by {post.user}</span>
+        <span className="text-violet-400 font-medium">Posted by {post.user}</span>
         <span className="text-gray-400">{post.date}</span>
       </div>
 
       <h2 className="text-2xl font-semibold text-black mb-2">{post.title}</h2>
-
-      {/* Post Content */}
-      <div className="text-black mb-4">
-        <div
-          ref={contentRef}
-          className={`${!showFullContent ? 'line-clamp-5' : ''}`}
-        >
-          {post.content}
-        </div>
-        {isTruncated && (
-          <button
-            onClick={() => setShowFullContent(!showFullContent)}
-            className="text-black-500 font-semibold mt-2"
-          >
-            {showFullContent ? 'See Less' : 'See More'}
-          </button>
-        )}
-      </div>
+      <p className="text-black mb-4">{post.content}</p>
 
       {/* Voting Buttons */}
       <div className="flex items-center space-x-4 mt-4">
         <button
           onClick={handleUpvote}
           className={`font-semibold ${
-            isUpvoted ? 'text-green-500' : 'text-green-800'
+            isUpvoted ? 'text-violet-400' : 'text-violet-600'
           }`}
         >
           {isUpvoted ? '★ Upvoted' : '☆ Upvote'} ({upvoteCount})
@@ -117,7 +95,7 @@ function ForumPost({ post }) {
       {/* Comments Section */}
       {showComments && (
         <div className="mt-4">
-          <h3 className="text-lg font-bold mb-2 text-black">Comments</h3>
+          <h3 className="text-lg font-bold mb-2 text-white">Comments</h3>
           {comments.length > 0 ? (
             comments.map((comment, index) => (
               <div key={index} className="p-2 border rounded mb-2 bg-gray-100">
