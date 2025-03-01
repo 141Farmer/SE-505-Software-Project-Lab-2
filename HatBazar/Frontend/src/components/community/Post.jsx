@@ -44,7 +44,6 @@ function ForumPost({ post }) {
       // Add downvote
       setDownvoteCount(downvoteCount + 1);
       setIsDownvoted(true);
-      
     }
   };
 
@@ -67,11 +66,11 @@ function ForumPost({ post }) {
 
       <h2 className="text-2xl font-semibold text-black mb-2">{post.title}</h2>
       <p className="text-black mb-4">{post.content}</p>
-      
+
       {/* Voting Buttons */}
       <div className="flex items-center space-x-4 mt-4">
-        <button 
-          onClick={handleUpvote} 
+        <button
+          onClick={handleUpvote}
           className={`font-semibold ${
             isUpvoted ? 'text-violet-400' : 'text-violet-600'
           }`}
@@ -79,8 +78,8 @@ function ForumPost({ post }) {
           {isUpvoted ? '★ Upvoted' : '☆ Upvote'} ({upvoteCount})
         </button>
 
-        <button 
-          onClick={handleDownvote} 
+        <button
+          onClick={handleDownvote}
           className={`font-semibold ${
             isDownvoted ? 'text-red-400' : 'text-red-600'
           }`}
@@ -106,7 +105,7 @@ function ForumPost({ post }) {
           ) : (
             <p className="text-gray-500">No comments yet.</p>
           )}
-          
+
           {/* Add Comment */}
           <div className="flex mt-4 space-x-2">
             <input
