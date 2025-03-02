@@ -16,27 +16,18 @@ class UserTable(SQLModel, table=True):
     def __repr__(self):
         return self.fullname
 
-class InvestorTable(SQLModel, table=True):
-    __tablename__ = "investor"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int | None = Field(foreign_key="user.id")
-    nid: str | None
-    updated_at: datetime = Field(default=datetime.now(timezone.utc))
 
 class FarmTable(SQLModel, table=True):
     __tablename__ = "farm"
     id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int | None = Field(foreign_key="user.id")
-    address: str  | None
-    nid: str | None
     farm_description: str | None
+    address: str  | None
     employee_count: int | None
     updated_at: datetime = Field(default=datetime.now(timezone.utc))
 
     products: list['ProductTable'] | None = Relationship(back_populates="farm")
 
-    # def __repr__(self):
-    #     return self.farm_name
     
 class ProductTable(SQLModel, table=True):
     __tablename__ = "product"
@@ -45,9 +36,10 @@ class ProductTable(SQLModel, table=True):
     product_name: str | None
     product_image: str | None
     unit_price: float | None
-    rating: float | None
     stock_amount: int | None
     production_procedure: str | None
+    rating: float | None
+
 
     farm: FarmTable | None = Relationship(back_populates="products")
     
