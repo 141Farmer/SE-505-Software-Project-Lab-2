@@ -5,16 +5,16 @@ from Database import Database
 
 class Farm(User):
 
-    def __init__(self, user: User, farmDescription, address, employeeCount):
-        super().__init__(user._username, user._fullname, user._email, user._phoneNumber, user._profile_photo_url, user._hashedPassword)      # awakward karon same user diye user kamne initiate hoy?? think it
+    def __init__(self, username, fullname, email, phoneNumber, profile_photo_url, hashed_password, farmDescription, address, employeeCount):
+        super().__init__(username, fullname, email, phoneNumber, profile_photo_url, hashed_password)      # awakward karon same user diye user kamne initiate hoy?? think it
         self.__farmDescription = farmDescription
         self.__address = address
         self.__employeeCount = employeeCount
         
-        query = select(UserTable).where(UserTable.username == user._username)
-        db_user = Database.read_one(query=query)
-        db_farm = FarmTable(username=db_user.username, farm_description=farmDescription, address=address, employee_count=employeeCount)
-        Database.write(db_farm)
+        # query = select(UserTable).where(UserTable.username == username)
+        # db_user = Database.read_one(query=query)
+        db_farm = FarmTable(username=username, farm_description=farmDescription, address=address, employee_count=employeeCount)
+        retutn = Database.write(db_farm)
         
         
 

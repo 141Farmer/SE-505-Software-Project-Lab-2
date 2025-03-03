@@ -31,7 +31,9 @@ class DashBoardResponse(BaseModel):
     profile_photo_url: str | None
 
 class CreateFarm(BaseModel):
-    user_id: int 
+    farmDescription: str
+    address: str
+    employee_count: int
 
 class CreateFarmResponse(BaseModel):
     msg: str
@@ -44,7 +46,6 @@ class FarmUpdate(BaseModel):
     employee_count: int
 
 class CreateProduct(BaseModel):
-    farm_id: int
     product_name: str
     product_image: str
     unit_price: float

@@ -12,6 +12,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
 from userRouter import user_router
 from marketplaceRouter import marketplace_router
+from AuthHandler import AuthHandler
+from Farm import Farm
+
 
 app = FastAPI()
 
@@ -40,15 +43,22 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return user.login(form_data.username, form_data.password)
 
 
-@app.post("/createfarm/", response_model=CreateFarmResponse)
-def createFarm(createFarm: CreateFarm):
-    with Database.get_session() as session:
-        db_farm = FarmTable(user_id=createFarm.user_id)
-        session.add(db_farm)
-        session.commit()
-        session.refresh(db_farm)
-        return CreateFarmResponse(msg="Success", user_id=createFarm.user_id)
+@app.post("/createfarm/")              # response_model=CreateFarmResponse)
+def createFarm(createFarm: CreateFarm, current_user = Depends(AuthHandler.get_current_user)):
+    username = current_user.username
+    query = select(UserTable).where(UserTable.username == username)
+    db_user = Database.read_one(query=query)
 
+    farm = Farm(username=username, fullname=db_user.fullname,
+                email=db_user.email, phoneNumber= db_user.phone, profile_photo_url=db_user.profile_photo,
+                hashed_password=db_user.hashed_password, farmDescription=createFarm.farmDescription,
+                address=createFarm.address, employeeCount=createFarm.employee_count
+                )
+    if not farm:
+        raise HTTPException(status_code=400, detail="Error creating farm")
+    
+    return {"message" : "farm created successfully"}
+    
 
 
 @app.get("/getfarm/{farm_id}")

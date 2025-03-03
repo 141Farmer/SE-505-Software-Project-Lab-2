@@ -2,7 +2,7 @@ from Farm import Farm
 
 class Product:
 
-    def __init__(self, name, image, description, price, stockAmount, productionProcedure, farm: Farm, rating=None):
+    def __init__(self, name, image, description, price, stockAmount, productionProcedure, farmName, farmAddress, rating=None):
         self._product_id = None
         self._name = name
         self._image = image
@@ -10,13 +10,14 @@ class Product:
         self._price = price
         self._stockAmount = stockAmount
         self._productionProcedure = productionProcedure
-        self._farm = farm
+        self._farmName = farmName
+        self._farmAddress = farmAddress
         self._rating = rating
 
 
     def rateProduct(self, rating):
         self.__rating = rating
-
+        
 
     def updateProduct(self):
         pass

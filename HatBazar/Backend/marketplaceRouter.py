@@ -23,6 +23,12 @@ def addProduct(productReceived: CreateProduct, current_user = Depends(AuthHandle
     query = select(FarmTable).where(FarmTable.username == current_user.username)
     db_farm = Database.read_one(query=query)
     farm_id = db_farm.id
-    product = Product(productReceived.product_name, productReceived.product_image, productReceived.description)
+
+    product = Product(
+        name=productReceived.product_name, image=productReceived.product_image, 
+        price=productReceived.unit_price, stockAmount=productReceived.stock_amount,
+        productionProcedure=productReceived.production_procedure, farmName=db_farm.username,
+        farmAddress= db_farm.address
+        )
     
-    market.addProduct()
+    market.addProduct(farm_id=farm_id, product=product)
