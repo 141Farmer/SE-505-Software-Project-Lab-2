@@ -60,8 +60,8 @@ function ForumPost({ post }) {
     <div className="border rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
       {/* User and Date Info */}
       <div className="flex justify-between items-center mb-3">
-        <span className="text-violet-400 font-medium">Posted by {post.user}</span>
-        <span className="text-gray-400">{post.date}</span>
+        <span className="text-violet-400 font-medium">Posted by {post.username}</span>
+        <span className="text-gray-400">{post.postedTime}</span>
       </div>
 
       <h2 className="text-2xl font-semibold text-black mb-2">{post.title}</h2>
