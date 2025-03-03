@@ -45,5 +45,4 @@ class Community:
                                                             posted_time=post.posted_time
                                                   )
                                         )
-                              print(postResponses)
                               return postResponses

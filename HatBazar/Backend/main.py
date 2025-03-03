@@ -151,5 +151,3 @@ def get_product(product_id: int):
         )
 
 app.include_router(community_router)
-
-Community.getPost()

@@ -10,7 +10,7 @@ function Forum() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPost, setNewPost] = useState({
-    user_name: "kamrul123",  // TODO: Replace with actual logged-in user
+    user_name: '',  // TODO: Replace with actual logged-in user
     title: '',
     content: ''
   });
@@ -50,7 +50,8 @@ function Forum() {
       const response = await fetch('http://127.0.0.1:8000/addpost/', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           user_name: newPost.user_name,  // Ensure you send the username
