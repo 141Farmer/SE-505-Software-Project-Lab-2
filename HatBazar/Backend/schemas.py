@@ -58,12 +58,12 @@ class CreateProductResponse(BaseModel):
     product_name: str
 
 class GetProductResponse(BaseModel):
-    # product_id: int # not be shown
+    product_id: int
     product_image: str
     product_name: str
     rating: float | None
     unit_price: float
     stock_amount: int
     farm_name: str
-    farm_addresss: str | None
-    production_procedure: str | None
+    farm_addresss: str
+    production_procedure: str

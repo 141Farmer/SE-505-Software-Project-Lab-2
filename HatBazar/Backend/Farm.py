@@ -10,9 +10,7 @@ class Farm(User):
         self.__farmDescription = farmDescription
         self.__address = address
         self.__employeeCount = employeeCount
-        
-        # query = select(UserTable).where(UserTable.username == username)
-        # db_user = Database.read_one(query=query)
+
         db_farm = FarmTable(username=username, farm_description=farmDescription, address=address, employee_count=employeeCount)
         retutn = Database.write(db_farm)
         

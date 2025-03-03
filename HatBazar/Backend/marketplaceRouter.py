@@ -7,6 +7,7 @@ from schemas import CreateProduct
 from AuthHandler import AuthHandler
 from models import FarmTable
 from Database import Database
+from fastapi import HTTPException
 
 marketplace_router = APIRouter()
 
@@ -15,14 +16,18 @@ market = Marketplace()
 
 @marketplace_router.get("/")
 def browseProducts():
-    market.browseProducts()
+    return market.browseProducts()
 
 
 @marketplace_router.post("/addproduct")
 def addProduct(productReceived: CreateProduct, current_user = Depends(AuthHandler.get_current_user)):
     query = select(FarmTable).where(FarmTable.username == current_user.username)
     db_farm = Database.read_one(query=query)
+
+    if not db_farm:
+        raise HTTPException(status_code=404, detail="Not registered Farmer")
     farm_id = db_farm.id
+
 
     product = Product(
         name=productReceived.product_name, image=productReceived.product_image, 
@@ -31,4 +36,7 @@ def addProduct(productReceived: CreateProduct, current_user = Depends(AuthHandle
         farmAddress= db_farm.address
         )
     
-    market.addProduct(farm_id=farm_id, product=product)
+    # print("product before adding : ", product._product_id)
+    product = market.addProduct(farm_id=farm_id, product=product)
+    # print("product after adding to market", product._product_id)
+    return {"message":f"{product._name} created Successfully."}

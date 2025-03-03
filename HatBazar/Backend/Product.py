@@ -2,11 +2,10 @@ from Farm import Farm
 
 class Product:
 
-    def __init__(self, name, image, description, price, stockAmount, productionProcedure, farmName, farmAddress, rating=None):
+    def __init__(self, name, image, price, stockAmount, productionProcedure, farmName, farmAddress, rating=None):
         self._product_id = None
         self._name = name
         self._image = image
-        self._description = description
         self._price = price
         self._stockAmount = stockAmount
         self._productionProcedure = productionProcedure
