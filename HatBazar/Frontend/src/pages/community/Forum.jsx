@@ -6,15 +6,16 @@ import CreatePostButton from '../../components/communities/CreatePostButton';
 import Modal from '../../components/communities/Modal';
 
 function Forum() {
-  const [posts, setPosts] = useState([]); // Start with an empty array
+  const [posts, setPosts] = useState([]); 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newPost, setNewPost] = useState({
+    user_name: "kamrul123",  // TODO: Replace with actual logged-in user
     title: '',
     content: ''
   });
 
-  // Fetch posts from API when component mounts
+  // ✅ Fetch posts when the component mounts
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -23,7 +24,7 @@ function Forum() {
           throw new Error('Failed to fetch posts');
         }
         const data = await response.json();
-        setPosts(data); // Update state with fetched posts
+        setPosts(data);
       } catch (error) {
         console.error('Error fetching posts:', error);
       }
@@ -32,11 +33,38 @@ function Forum() {
     fetchPosts();
   }, []);
 
-  // Filter posts based on search query
-  const filteredPosts = posts.filter(post => 
-    post.post_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    post.post_content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // ✅ Handle creating a new post
+  const handleCreatePost = async () => {
+    if (!newPost.title.trim() || !newPost.content.trim()) {
+      alert("Title and content cannot be empty!");
+      return;
+    }
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/addpost/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          user_name: newPost.user_name,  // Ensure you send the username
+          post_title: newPost.title,
+          post_content: newPost.content
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create post');
+      }
+
+      const createdPost = await response.json(); // Backend should return the new post
+      setPosts([createdPost.post, ...posts]);  // ✅ Update the UI
+      setIsModalOpen(false); // ✅ Close modal
+      setNewPost({ title: '', content: '' }); // ✅ Reset input fields
+    } catch (error) {
+      console.error('Error creating post:', error);
+    }
+  };
 
   return (
     <div className="p-8 bg-green-100 min-h-screen">
@@ -50,11 +78,12 @@ function Forum() {
       />
 
       <div className="grid grid-cols-1 gap-6 mt-4">
-        {filteredPosts.length > 0 ? (
-          filteredPosts.map(post => (
+        {posts.length > 0 ? (
+          posts.map(post => (
             <ForumPost 
-              key={post.id} // Use a unique key (e.g., post.id if available)
+              key={post.id}
               post={{
+                id: post.id,
                 title: post.post_title,
                 content: post.post_content,
                 username: post.user_name,
@@ -89,7 +118,7 @@ function Forum() {
             className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <button
-            onClick={() => console.log("Post Created")} // Implement API call later
+            onClick={handleCreatePost} // ✅ Call the function on click
             className="w-full p-2 bg-green-600 text-white rounded-md hover:bg-green-700 
                      transition-colors duration-200 focus:outline-none focus:ring-2 
                      focus:ring-green-500 focus:ring-opacity-50"

@@ -60,8 +60,8 @@ class PostTable(SQLModel, table=True):
     user_name: str | None = Field(foreign_key="user.username")
     post_title: str | None
     post_content: str | None
-    upvote_count: str | None
-    downvote_count: str | None
+    upvote_count: int | None
+    downvote_count: int | None
     posted_time: datetime = Field(default=datetime.now(timezone.utc))
 
 class CommentTable(SQLModel, table=True):
