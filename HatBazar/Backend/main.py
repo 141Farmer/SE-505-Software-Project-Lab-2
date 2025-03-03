@@ -4,10 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from Database import Database
 from User import User
+from CommunityRouter import router as community_router
+from Community import Community
 from models import UserTable, InvestorTable, FarmTable, ProductTable
 from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
 from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
-from schemas import CreateProduct, CreateProductResponse, GetProductResponse
+from schemas import CreateProduct, CreateProductResponse, GetProductResponse, PostResponse
 from fastapi.middleware.cors import CORSMiddleware
 from AuthHandler import AuthHandler
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
@@ -147,3 +149,7 @@ def get_product(product_id: int):
             farm_addresss=product.farm.address,
             production_procedure=product.production_procedure
         )
+
+app.include_router(community_router)
+
+Community.getPost()

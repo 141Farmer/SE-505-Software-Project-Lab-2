@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime, timezone, date
 
 class UserCreate(BaseModel):
     username: str
@@ -66,3 +67,13 @@ class GetProductResponse(BaseModel):
     farm_name: str
     farm_addresss: str | None
     production_procedure: str | None
+
+
+class PostResponse(BaseModel):
+    post_id: int
+    user_name: str
+    post_title: str
+    post_content: str
+    upvote_count: int 
+    downvote_count: int
+    posted_time: datetime

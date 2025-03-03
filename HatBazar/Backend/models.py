@@ -53,3 +53,29 @@ class ProductTable(SQLModel, table=True):
     
     def __repr__(self):
         return self.product_name
+
+class PostTable(SQLModel, table=True):
+    __tablename__ = "post"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_name: str | None = Field(foreign_key="user.username")
+    post_title: str | None
+    post_content: str | None
+    upvote_count: str | None
+    downvote_count: str | None
+    posted_time: datetime = Field(default=datetime.now(timezone.utc))
+
+class CommentTable(SQLModel, table=True):
+    __tablename__="comment"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int | None = Field(foreign_key="post.id")
+    user_name: str | None = Field(foreign_key="user.username")
+    comment: str | None
+    commented_time: datetime = Field(default=datetime.now(timezone.utc))
+
+class VoteTable(SQLModel, table=True):
+    __tablename__="vote"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int | None = Field(foreign_key="post.id")
+    user_name: str | None = Field(foreign_key="user.id")
+    vote: int | None
+
