@@ -23,6 +23,7 @@ class Community:
                               for post in posts:
                                         postResponses.append(
                                                   PostResponse(
+                                                            post_id=post.id,
                                                             user_name=post.user_name,
                                                             post_title=post.post_title,
                                                             post_content=post.post_content,
