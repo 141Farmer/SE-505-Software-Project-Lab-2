@@ -23,7 +23,7 @@ class Database:
     def get_session(cls):
         return Session(cls.engine)
 
-        @classmethod
+    @classmethod
     def read_all(cls, query):
         with cls.get_session() as session:
             return session.exec(query).all()
