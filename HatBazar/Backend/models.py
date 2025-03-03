@@ -20,7 +20,7 @@ class UserTable(SQLModel, table=True):
 class FarmTable(SQLModel, table=True):
     __tablename__ = "farm"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int | None = Field(foreign_key="user.id")
+    username: str | None = Field(foreign_key="user.username")
     farm_description: str | None
     address: str  | None
     employee_count: int | None

@@ -13,9 +13,8 @@ class Farm(User):
         
         query = select(UserTable).where(UserTable.username == user._username)
         db_user = Database.read_one(query=query)
-        print(db_user)
-        db_farm = FarmTable(user_id=db_user.id, farm_description=farmDescription, address=address, employee_count=employeeCount)
-        
+        db_farm = FarmTable(username=db_user.username, farm_description=farmDescription, address=address, employee_count=employeeCount)
+        Database.write(db_farm)
         
         
 
@@ -36,4 +35,4 @@ class Farm(User):
 
 
 
-farm = Farm(User("kibria30", "Md kibria Hossen Roni", "kibria8007@gmail.com", "01727396969", "http://127.0.0.1:8000/static/profile_images/kibria30_5822a15d-8d37-4b00-89d3-ad441b073df6.jpg"), "Kolakhet", "Gramerbari, Tangail", 20)
+# farm = Farm(User("kibria30", "Md kibria Hossen Roni", "kibria8007@gmail.com", "01727396969", "http://127.0.0.1:8000/static/profile_images/kibria30_5822a15d-8d37-4b00-89d3-ad441b073df6.jpg"), "Kolakhet", "Gramerbari, Tangail", 20)

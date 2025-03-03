@@ -1,18 +1,17 @@
 from pathlib import Path
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from Database import Database
 from User import User
-from models import UserTable, InvestorTable, FarmTable, ProductTable
-from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
-from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
+from models import UserTable, FarmTable, ProductTable
+from schemas import CreateFarm, CreateFarmResponse, FarmUpdate, LoginResponse
 from schemas import CreateProduct, CreateProductResponse, GetProductResponse
 from fastapi.middleware.cors import CORSMiddleware
-from AuthHandler import AuthHandler
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
-from ImageHandler import ImageHandler
-
+from userRouter import user_router
+from marketplaceRouter import marketplace_router
 
 app = FastAPI()
 
@@ -31,35 +30,14 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 user = User()
 
 
-@app.post("/signup/", response_model=LoginResponse)
-def signup(userInfo: UserCreate):
-    return user.register(userInfo.username, userInfo.fullname, userInfo.email, userInfo.phoneNumber, userInfo.password)
+app.include_router(user_router, prefix="", tags=["User"])
+app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
 
 
-@app.post("/login/", response_model=LoginResponse)
-def login(userLogin: UserLogin):
-    return user.login(userLogin.username, userLogin.password)
 
-
-@app.get("/dashboard/", response_model=DashBoardResponse)
-def getDashBoard():
-    return user.viewDashboard()
-
-
-@app.put("/updateuser/", response_model=dict)
-def updateUser(userToUpdate: UpdateUser):
-    print(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
-    return user.updateProfile(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
-
-
-@app.delete("/deleteuser/", response_model=dict)
-def deleteUser():
-    return user.deleteAccount()
-
-
-@app.post("/upload-profile-image/")
-async def upload_profile_image(file: UploadFile = File(...), current_user = Depends(AuthHandler.get_current_user)):
-    return ImageHandler.uploadProfilePhoto(file, current_user.username)
+@app.post("/token", response_model=LoginResponse)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    return user.login(form_data.username, form_data.password)
 
 
 @app.post("/createfarm/", response_model=CreateFarmResponse)
