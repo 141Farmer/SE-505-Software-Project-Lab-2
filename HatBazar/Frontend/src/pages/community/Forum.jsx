@@ -35,7 +35,13 @@ function Forum() {
 
   // ✅ Handle creating a new post
   const handleCreatePost = async () => {
-    if (!newPost.title.trim() || !newPost.content.trim()) {
+    const token=localStorage.getItem('token');
+    if(!token){
+      alert("Log in first");
+      return;
+    }
+    
+    if (!newPost.title.trim()) {
       alert("Title and content cannot be empty!");
       return;
     }

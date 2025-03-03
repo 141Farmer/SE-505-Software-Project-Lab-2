@@ -6,10 +6,10 @@ from typing import List
 from datetime import datetime, timezone
 
 class Community:
-          def addPost(post: PostCreate):
+          def addPost(post: PostCreate, currentUser):
                     with Database.get_session() as session:
                               newPost=PostTable(
-                                        user_name=post.user_name,
+                                        user_name=currentUser.username,
                                         post_title=post.post_title,
                                         post_content=post.post_content,
                                         upvote_count=0,
