@@ -4,6 +4,8 @@ import Navbar from '../../components/Navbar/Navbar';
 
 const MarketPlace = () => {
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -22,6 +24,14 @@ const MarketPlace = () => {
     checkUserRole();
   }, []);
 
+  useEffect(() => {
+    // Filter products whenever the search term or products change
+    const filtered = products.filter((product) =>
+      product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [searchTerm, products]);
+
   const fetchProducts = async () => {
     try {
       const response = await fetch('http://127.0.0.1:8000/marketplace', {
@@ -32,6 +42,7 @@ const MarketPlace = () => {
       });
       const data = await response.json();
       setProducts(data);
+      setFilteredProducts(data); // Initialize filtered products with all products
     } catch (error) {
       console.error('Error fetching products:', error);
     }
@@ -102,6 +113,16 @@ const MarketPlace = () => {
       <Navbar />
       <div className="container mx-auto px-4 pt-20 pb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Agricultural Products</h1>
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+          />
+        </div>
         {userRole === 'farm' && (
           <button
             className="mb-4 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -112,7 +133,7 @@ const MarketPlace = () => {
           </button>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <div
               key={product.product_id}
               className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer"
@@ -141,7 +162,6 @@ const MarketPlace = () => {
             </div>
           ))}
         </div>
-
 
         {/* Add Product Modal */}
         {isAddModalOpen && (

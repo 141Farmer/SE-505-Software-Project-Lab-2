@@ -67,5 +67,5 @@ class Marketplace:
         pass
 
 
-    def searchProducts(self):
+    def searchProducts(self):           #client side search is used in frontend
         pass
