@@ -1,15 +1,15 @@
 from sqlmodel import select
-from models import ProductTable
+from models import ProductTable, FarmTable
 from Product import Product
 from Database import Database
 from fastapi import HTTPException
+from schemas import GetProductResponse
 
 
 
 class Marketplace:
-    def __init__(self):         #lagbe na. Eita pass kore dileoy
-        query = select(ProductTable)
-        self.__productList = Database.read_all(query=query)
+    def __init__(self):
+        pass
 
     
     def addProduct(self, product: Product, farm_id: int):
@@ -18,47 +18,51 @@ class Marketplace:
                                   production_procedure=product._productionProcedure)
         
         db_product = Database.write(db_product)
-        print("product id from db_product: ", db_product.id)
         product._product_id = db_product.id
-        # self.__productList.append(product)        #Dorker nai
         return product
 
-
     
-    def deleteProduct(self, product: Product):    #sesh hoy nai
-        query = select(ProductTable).where(ProductTable.product_name == product._name)   #better find using id as it is unique
+    def deleteProduct(self, product_id: int):
+        query = select(ProductTable).where(ProductTable.id == product_id)
         db_product = Database.read_one(query=query)
         if not db_product:
             raise ValueError("Product not found in the database")
         Database.delete(db_product)
-        self.__productList.remove(product)
-        if product in self.__productList:
-            print("Yes the product is in the list and will be deleted.")
-            self.__productList.remove(product)
-        else:
-            print("Product not found!!")
+        return {"message" : f"{db_product.product_name} deleted successfully."}
 
 
     def browseProducts(self):
-        if not self.__productList:
+        query = select(ProductTable)
+        productList = Database.read_all(query=query)
+
+        if not productList:
             raise HTTPException(status_code=404, detail="No product found!!")
+
+        productResponseList = list()
+        for product in productList:
+            farm_query = select(FarmTable).where(FarmTable.id == product.farm_id)
+            farm = Database.read_one(query=farm_query)
+            farm_name = farm.username if farm else "Unknown"
+            farm_addresss = farm.address if farm else "Unknown"
+            productResponseList.append(GetProductResponse(
+                product_id=product.id,
+                product_name=product.product_name,
+                product_image=product.product_image,
+                rating=product.rating,
+                unit_price=product.unit_price,
+                stock_amount=product.stock_amount,
+                farm_name=farm_name,
+                farm_addresss=farm_addresss,
+                production_procedure=product.production_procedure
+            )
+        )
+            
+        return productResponseList
+        
     
-        print("Available Products:")
-        list_of_product_info = list()
-        for product in self.__productList:
-            list_of_product_info.append(f"Name: {product.product_name}, Price: {product.unit_price}, Stock: {product.stock_amount}")
-
-        return list_of_product_info
-
-    def searchProducts(self):
+    def updateProductInfo():
         pass
 
 
-# alo = Product(name="Alo", image="/url/alo", description="Very good alo", price=30, stockAmount=30, productionProcedure="Emnitei hoice")
-# market = Marketplace()
-# market.addProduct(alo, 7)
-# # market.addProduct(Product(name="Potol", image="/url/potol" description="Very good alo", price=30, stockAmount=30, productionProcedure="Emnitei hoice"))
-# # market.addProduct(Product(name="Morich", description="Very good alo", price=30, stockAmount=30, productionProcedure="Emnitei hoice"))
-# market.browseProducts()
-# market.deleteProduct(alo)
-# market.browseProducts()
+    def searchProducts(self):
+        pass

@@ -7,7 +7,7 @@ from Database import Database
 from User import User
 from models import UserTable, FarmTable, ProductTable
 from schemas import CreateFarm, CreateFarmResponse, FarmUpdate, LoginResponse
-from schemas import CreateProduct, CreateProductResponse, GetProductResponse
+from schemas import CreateProductResponse, GetProductResponse
 from fastapi.middleware.cors import CORSMiddleware
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
 from userRouter import user_router
@@ -92,23 +92,23 @@ def update_farm(farm_id: int, farm_update: FarmUpdate):
 
 
 
-@app.post("/createproduct/", response_model=CreateProductResponse)
-def createProduct(createProduct: CreateProduct):
-    with Database.get_session() as session:
-        db_product = ProductTable(
-            farm_id=createProduct.farm_id,
-            product_name=createProduct.product_name,
-            product_image=createProduct.product_image,
-            unit_price=createProduct.unit_price,
-            stock_amount=createProduct.stock_amount,
-            production_procedure=createProduct.production_procedure
-        )
-        session.add(db_product)
-        session.commit()
-        session.refresh(db_product)
-        print(db_product)
-        return CreateProductResponse(
-            msg="Success",product_name=createProduct.product_name)
+# @app.post("/createproduct/", response_model=CreateProductResponse)
+# def createProduct(createProduct: CreateProduct):
+#     with Database.get_session() as session:
+#         db_product = ProductTable(
+#             farm_id=createProduct.farm_id,
+#             product_name=createProduct.product_name,
+#             product_image=createProduct.product_image,
+#             unit_price=createProduct.unit_price,
+#             stock_amount=createProduct.stock_amount,
+#             production_procedure=createProduct.production_procedure
+#         )
+#         session.add(db_product)
+#         session.commit()
+#         session.refresh(db_product)
+#         print(db_product)
+#         return CreateProductResponse(
+#             msg="Success",product_name=createProduct.product_name)
 
 
 
