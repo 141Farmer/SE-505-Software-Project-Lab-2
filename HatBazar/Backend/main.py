@@ -30,13 +30,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+user=User()
+
 Database.create_db_and_tables()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-user = User()
-
-
+app.include_router(community_router)
+app.include_router(post_router)
 app.include_router(user_router, prefix="", tags=["User"])
 app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
 
@@ -148,6 +149,3 @@ def get_product(product_id: int):
             production_procedure=product.production_procedure
         )
 
-app.include_router(community_router)
-
-app.include_router(post_router)
