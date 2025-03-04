@@ -1,5 +1,6 @@
 from pathlib import Path
 from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
 from Database import Database
@@ -9,12 +10,14 @@ from PostRouter import router as post_router
 from Community import Community
 from models import UserTable, InvestorTable, FarmTable, ProductTable
 from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
-from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
-from schemas import CreateProduct, CreateProductResponse, GetProductResponse, PostResponse
+from schemas import CreateProductResponse, GetProductResponse, PostResponse
+from schemas import CreateFarm, CreateFarmResponse, FarmUpdate, LoginResponse
 from fastapi.middleware.cors import CORSMiddleware
-from AuthHandler import AuthHandler
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
-from ImageHandler import ImageHandler
+from userRouter import user_router
+from marketplaceRouter import marketplace_router
+from AuthHandler import AuthHandler
+from Farm import Farm
 
 
 app = FastAPI()
@@ -34,46 +37,40 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 user = User()
 
 
-@app.post("/signup/", response_model=LoginResponse)
-def signup(userInfo: UserCreate):
-    return user.register(userInfo.username, userInfo.fullname, userInfo.email, userInfo.phoneNumber, userInfo.password)
+app.include_router(user_router, prefix="", tags=["User"])
+app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
 
 
-@app.post("/login/", response_model=LoginResponse)
-def login(userLogin: UserLogin):
-    return user.login(userLogin.username, userLogin.password)
+
+@app.post("/token", response_model=LoginResponse)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    return user.login(form_data.username, form_data.password)
 
 
-@app.get("/dashboard/", response_model=DashBoardResponse)
-def getDashBoard():
-    return user.viewDashboard()
+@app.get("/user-role")
+def getUserRole(current_user = Depends(AuthHandler.get_current_user)):
+    query = select(FarmTable).where(FarmTable.username == current_user.username)
+    if Database.read_one(query=query):
+        return {"role": "farm"}
+    return {"role": "user"}
 
 
-@app.put("/updateuser/", response_model=dict)
-def updateUser(userToUpdate: UpdateUser):
-    print(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
-    return user.updateProfile(userToUpdate.fullname, userToUpdate.email, userToUpdate.phoneNumber)
+@app.post("/createfarm/")              # response_model=CreateFarmResponse)
+def createFarm(createFarm: CreateFarm, current_user = Depends(AuthHandler.get_current_user)):
+    username = current_user.username
+    query = select(UserTable).where(UserTable.username == username)
+    db_user = Database.read_one(query=query)
 
-
-@app.delete("/deleteuser/", response_model=dict)
-def deleteUser():
-    return user.deleteAccount()
-
-
-@app.post("/upload-profile-image/")
-async def upload_profile_image(file: UploadFile = File(...), current_user = Depends(AuthHandler.get_current_user)):
-    return ImageHandler.uploadProfilePhoto(file, current_user.username)
-
-
-@app.post("/createfarm/", response_model=CreateFarmResponse)
-def createFarm(createFarm: CreateFarm):
-    with Database.get_session() as session:
-        db_farm = FarmTable(user_id=createFarm.user_id)
-        session.add(db_farm)
-        session.commit()
-        session.refresh(db_farm)
-        return CreateFarmResponse(msg="Success", user_id=createFarm.user_id)
-
+    farm = Farm(username=username, fullname=db_user.fullname,
+                email=db_user.email, phoneNumber= db_user.phone, profile_photo_url=db_user.profile_photo,
+                hashed_password=db_user.hashed_password, farmDescription=createFarm.farmDescription,
+                address=createFarm.address, employeeCount=createFarm.employee_count
+                )
+    if not farm:
+        raise HTTPException(status_code=400, detail="Error creating farm")
+    
+    return {"message" : "farm created successfully"}
+    
 
 
 @app.get("/getfarm/{farm_id}")
@@ -107,23 +104,23 @@ def update_farm(farm_id: int, farm_update: FarmUpdate):
 
 
 
-@app.post("/createproduct/", response_model=CreateProductResponse)
-def createProduct(createProduct: CreateProduct):
-    with Database.get_session() as session:
-        db_product = ProductTable(
-            farm_id=createProduct.farm_id,
-            product_name=createProduct.product_name,
-            product_image=createProduct.product_image,
-            unit_price=createProduct.unit_price,
-            stock_amount=createProduct.stock_amount,
-            production_procedure=createProduct.production_procedure
-        )
-        session.add(db_product)
-        session.commit()
-        session.refresh(db_product)
-        print(db_product)
-        return CreateProductResponse(
-            msg="Success",product_name=createProduct.product_name)
+# @app.post("/createproduct/", response_model=CreateProductResponse)
+# def createProduct(createProduct: CreateProduct):
+#     with Database.get_session() as session:
+#         db_product = ProductTable(
+#             farm_id=createProduct.farm_id,
+#             product_name=createProduct.product_name,
+#             product_image=createProduct.product_image,
+#             unit_price=createProduct.unit_price,
+#             stock_amount=createProduct.stock_amount,
+#             production_procedure=createProduct.production_procedure
+#         )
+#         session.add(db_product)
+#         session.commit()
+#         session.refresh(db_product)
+#         print(db_product)
+#         return CreateProductResponse(
+#             msg="Success",product_name=createProduct.product_name)
 
 
 

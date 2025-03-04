@@ -86,12 +86,6 @@ class User:
             self._phoneNumber = phoneNumber
             return {"message": "User updated successfully"}
 
-        
-
-
-    # def logout(self, ):               # handled in frontend
-    #     pass                          #instead there should be deleteAccount()
-
 
     def deleteAccount(self) -> dict:
         with Database.get_session() as session:
@@ -103,19 +97,10 @@ class User:
             
             session.delete(userToDelete)
             session.commit()
-            session.refresh(userToDelete)
             self.__init__()
             return {"message": "User deleted successfully"}
             
 
-
     def manageNotification(self, ):
         pass
-
-    # def postInCommunity(self, ):
-    #     pass
-    #                                               #hampers single responsibility
-    # def commentInPost(self, ):              
-    #     pass
-
 
