@@ -10,12 +10,13 @@ import InvestmentCreatePage from "./pages/investment/InvestmentCreatePage";
 import InvestmentBrowsePage from "./pages/investment/InvestmentBrowsePage";
 import Forum from "./pages/community/Forum";
 import ContractSection from "./components/ContractSection";
-
-
+import { Toaster } from "react-hot-toast";
+import Cart from "./pages/marketplace/cart";
 
 const App = () => {
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<LandingPage />}></Route>
         <Route path="/login" element={<LoginPage />} />
@@ -27,8 +28,10 @@ const App = () => {
         <Route path="/investcreate" element={<InvestmentCreatePage />} />
         <Route path="/investbrowse" element={<InvestmentBrowsePage />} />
         <Route path="/contract" element={<ContractSection />} />
+         <Route path="/cart" element={<Cart />} />
       </Routes>
     </Router>
+    
   );
 };
 

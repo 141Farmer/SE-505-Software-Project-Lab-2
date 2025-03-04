@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Star, X, Package, User, Truck, Plus } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
+import { toast } from "react-hot-toast";
+import FloatingCartButton from '../../components/Marketplace/FloatingCartButton';
 
 const MarketPlace = () => {
   const [products, setProducts] = useState([]);
@@ -12,11 +14,15 @@ const MarketPlace = () => {
   const [userRole, setUserRole] = useState(null);
   const [newProduct, setNewProduct] = useState({
     name: '',
-    product_detail: '',
+    package_detail: '',
     image: null,
     price: '',
     stock: '',
     production_procedure: '',
+  });
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : [];
   });
 
   useEffect(() => {
@@ -31,6 +37,11 @@ const MarketPlace = () => {
     );
     setFilteredProducts(filtered);
   }, [searchTerm, products]);
+
+  useEffect(() => {
+    // Update localStorage whenever cartItems change
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
 
   const fetchProducts = async () => {
     try {
@@ -108,12 +119,44 @@ const MarketPlace = () => {
     }
   };
 
+  const handleAddToCart = (product) => {
+    // Check if product is already in cart
+    const existingProductIndex = cartItems.findIndex(
+      (item) => item.product_id === product.product_id
+    );
+  
+    let updatedCart;
+    if (existingProductIndex > -1) {
+      // If product exists, increase its quantity
+      updatedCart = cartItems.map((item, index) => 
+        index === existingProductIndex 
+          ? { ...item, quantity: (item.quantity || 1) + 1 }
+          : item
+      );
+    } else {
+      // Add new product with quantity 1
+      updatedCart = [...cartItems, { ...product, quantity: 1 }];
+    }
+  
+    // Update cart state and localStorage
+    setCartItems(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    
+    // Show success toast
+    toast.success("Product added to cart successfully!");
+  };
+
+  // Rest of the component remains the same...
+
   return (
     <div className="min-h-screen bg-green-100">
+
       <Navbar />
+
       <div className="container mx-auto px-4 pt-20 pb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8">Agricultural Products</h1>
         {/* Search Bar */}
+
         <div className="mb-6">
           <input
             type="text"
@@ -123,6 +166,7 @@ const MarketPlace = () => {
             className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
+
         {userRole === 'farm' && (
           <button
             className="mb-4 flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
@@ -132,6 +176,7 @@ const MarketPlace = () => {
             Add Product
           </button>
         )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredProducts.map((product) => (
             <div
@@ -273,6 +318,7 @@ const MarketPlace = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsModalOpen(false)} />
             <div className="bg-white rounded-lg p-6 max-w-3xl w-full mx-4 relative z-10 max-h-[90vh] overflow-y-auto">
+              {/* ... previous modal content ... */}
               <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
                 <X className="w-6 h-6" />
               </button>
@@ -305,17 +351,24 @@ const MarketPlace = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center mt-6">
-                <div>
-                  <span className="text-xl font-bold text-green-600">${selectedProduct.unit_price}</span>
-                </div>
-                <button className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg">
-                  Add to Cart
-                </button>
+              <div>
+                <span className="text-xl font-bold text-green-600">${selectedProduct.unit_price}</span>
               </div>
+              <button 
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+                onClick={() => handleAddToCart(selectedProduct)}
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
       </div>
+
+      <FloatingCartButton cartItems={cartItems} />
+
+
     </div>
   );
 };
