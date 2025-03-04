@@ -7,7 +7,7 @@ from User import User
 from CommunityRouter import router as community_router
 from PostRouter import router as post_router
 from Community import Community
-from models import UserTable, InvestorTable, FarmTable, ProductTable
+from models import UserTable, FarmTable, ProductTable
 from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
 from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
 from schemas import CreateProduct, CreateProductResponse, GetProductResponse, PostResponse

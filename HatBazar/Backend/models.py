@@ -16,12 +16,6 @@ class UserTable(SQLModel, table=True):
     def __repr__(self):
         return self.fullname
 
-class InvestorTable(SQLModel, table=True):
-    __tablename__ = "investor"
-    id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int | None = Field(foreign_key="user.id")
-    nid: str | None
-    updated_at: datetime = Field(default=datetime.now(timezone.utc))
 
 class FarmTable(SQLModel, table=True):
     __tablename__ = "farm"
@@ -79,29 +73,40 @@ class VoteTable(SQLModel, table=True):
     user_name: str | None = Field(foreign_key="user.username")
     vote: int | None
 
-'''
+
 class InvestmentOfferTable(SQLModel, table=True):
     __tablename__= "offer"
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
-    offer_title: str | None 
-    offer_content: str | None
+    user_name: str | None 
+    offer_description: str | None
     offer_creation_time: datetime = Field(default=datetime.now(timezone.utc))
-
+    offer_investment_principle: float | None
+    offer_investment_rate: float | None
+    offer_share_dividing_period_month: int | None 
+    offer_investment_duration_month: int | None
 
 class InvestmentBidTable(SQLModel, table=True):
     __tablename__= "bid"
     id: Optional[int] = Field(default=None, primary_key=True)
     investment_offer_id: int | None = Field(foreign_key="offer.id") 
-    investor_id: int | None = Field(foreign_key="investor.id") 
-    bid_content: str | None
+    user_id: int | None = Field(foreign_key="user.id")
+    user_name: str | None  
     bid_creation_time: datetime = Field(default=datetime.now(timezone.utc))
+    bid_investment_principle: float | None
+    bid_investment_rate: float | None
+    bid_share_dividing_period_month: int | None 
+    bid_investment_duration_month: int | None
 
 class InvestmentTable(SQLModel, table=True):
     __tablename__="investment"
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
-    user_name: str | None = Field(foreign_key="user.id")
-    vote: int | None
+    user_id: int | None = Field(foreign_key="user.id")
+    investment_principle: float | None
+    investment_rate: float | None
+    share_dividing_period_month: int | None 
+    investment_duration_month: int | None 
+    transaction_id: str | None
 
-'''
+
