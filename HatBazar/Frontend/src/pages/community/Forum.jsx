@@ -87,6 +87,7 @@ function Forum() {
       <div className="grid grid-cols-1 gap-6 mt-4">
         {posts.length > 0 ? (
           posts.map(post => (
+            
             <ForumPost 
               key={post.id}
               post={{

@@ -4,7 +4,7 @@ from AuthHandler import AuthHandler
 from typing import List
 from schemas import CommentResponse
 
-router = APIRouter(prefix='',tags=['Post'])
+router = APIRouter(prefix='', tags=['Post'])
 
 @router.post("/votepost/")
 def voteCommunityPost(post_id: int, vote: int, currentUser=Depends(AuthHandler.get_current_user)):
@@ -12,7 +12,7 @@ def voteCommunityPost(post_id: int, vote: int, currentUser=Depends(AuthHandler.g
 
 @router.post("/commentpost/")
 def commentCommunityPost(post_id: int, comment: str, currentUser=Depends(AuthHandler.get_current_user)):
-        return Post.addPost(post_id, post, currentUser)
+        return Post.commentCommunityPost(post_id, comment, currentUser)  
 
 @router.get("/getcomment/", response_model=List[CommentResponse])
 def getPostComment(post_id: int):
