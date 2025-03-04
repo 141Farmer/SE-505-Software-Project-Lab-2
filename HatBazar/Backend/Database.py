@@ -22,6 +22,7 @@ class Database:
     @classmethod
     def get_session(cls):
         return Session(cls.engine)
+      
 
     @classmethod
     def read_all(cls, query):

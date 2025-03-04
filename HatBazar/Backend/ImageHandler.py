@@ -4,8 +4,7 @@ from uuid import uuid4
 from sqlmodel import select
 from Database import Database
 from models import UserTable
-from config import PROFILE_UPLOAD_DIR
-from AuthHandler import AuthHandler
+from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
 
 
 class ImageHandler:
@@ -65,6 +64,43 @@ class ImageHandler:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Failed to update profile image in database: {str(e)}"
             )
+        
+    @classmethod
+    def uploadProductImage(cls, file: UploadFile):
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="File must be an image"
+            )
+        
+        file_extension = file.filename.split(".")[-1].lower()
+        if file_extension not in ["jpg", "jpeg", "png", "gif"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Only JPG, PNG, and GIF files are allowed"
+            )
+        
+        filename = f"product_{uuid4()}.{file_extension}"
+        file_path = PRODUCT_UPLOAD_DIR / filename
+        
+        try:
+            with file_path.open("wb") as buffer:
+                shutil.copyfileobj(file.file, buffer)
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to save image: {str(e)}"
+            )
+        finally:
+            file.file.close()
+        
+        try:
+            image_url = f"/static/product_images/{filename}"
+            return image_url
+        
+        except Exception as e:
+            raise HTTPException(status_code=404, detail="This file path not found!!")
+        
 
 
 

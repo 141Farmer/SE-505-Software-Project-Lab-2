@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship  #text
+from sqlmodel import Column, Field, SQLModel, Relationship, String  #text
 
 class UserTable(SQLModel, table=True):
     __tablename__ = "user"
@@ -20,28 +20,27 @@ class UserTable(SQLModel, table=True):
 class FarmTable(SQLModel, table=True):
     __tablename__ = "farm"
     id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int | None = Field(foreign_key="user.id")
-    address: str  | None
-    nid: str | None
+    username: str | None = Field(foreign_key="user.username")
     farm_description: str | None
+    address: str  | None
     employee_count: int | None
     updated_at: datetime = Field(default=datetime.now(timezone.utc))
 
     products: list['ProductTable'] | None = Relationship(back_populates="farm")
 
-    # def __repr__(self):
-    #     return self.farm_name
     
 class ProductTable(SQLModel, table=True):
     __tablename__ = "product"
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
     product_name: str | None
+    package_detail: str = Field(sa_column=Column(String(500)))
     product_image: str | None
     unit_price: float | None
-    rating: float | None
     stock_amount: int | None
     production_procedure: str | None
+    rating: float | None
+
 
     farm: FarmTable | None = Relationship(back_populates="products")
     

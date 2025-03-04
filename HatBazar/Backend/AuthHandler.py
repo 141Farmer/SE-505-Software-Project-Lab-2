@@ -10,7 +10,7 @@ from Database import Database
 from models import UserTable
 
 load_dotenv()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 class AuthHandler:
