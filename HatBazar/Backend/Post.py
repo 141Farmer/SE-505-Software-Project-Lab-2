@@ -31,6 +31,7 @@ class Post:
                     return {'message': 'Vote added successfully'}
 
           def getComment(post_id: int):
+                    print('Post id is',post_id)
                     with Database.get_session() as session:
                               query = select(CommentTable).where(CommentTable.post_id == post_id)
                               comments = session.exec(query).all()
@@ -47,7 +48,7 @@ class Post:
                                         for comment in comments
                               ]
 
-                    return commentResponses
+                              return commentResponses
 
           def commentCommunityPost(post_id: int, comment: str, currentUser):
                     with Database.get_session() as session:
