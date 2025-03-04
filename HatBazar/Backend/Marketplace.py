@@ -13,7 +13,7 @@ class Marketplace:
 
     
     def addProduct(self, product: Product, farm_id: int):
-        db_product = ProductTable(farm_id=farm_id, product_name=product._name, product_image=product._image,
+        db_product = ProductTable(farm_id=farm_id, product_name=product._name, package_detail=product._package_detail, product_image=product._image,
                                   unit_price=product._price, stock_amount=product._stockAmount, 
                                   production_procedure=product._productionProcedure)
         
@@ -34,6 +34,8 @@ class Marketplace:
     def browseProducts(self):
         query = select(ProductTable)
         productList = Database.read_all(query=query)
+        for product in productList:
+            print(product.product_name, "'s package details: ", product.package_detail)
 
         if not productList:
             raise HTTPException(status_code=404, detail="No product found!!")
@@ -47,6 +49,7 @@ class Marketplace:
             productResponseList.append(GetProductResponse(
                 product_id=product.id,
                 product_name=product.product_name,
+                package_detail=product.package_detail or "No details available",
                 product_image=product.product_image,
                 rating=product.rating,
                 unit_price=product.unit_price,

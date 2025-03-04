@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from typing import Optional
-from sqlmodel import Field, SQLModel, Relationship  #text
+from sqlmodel import Column, Field, SQLModel, Relationship, String  #text
 
 class UserTable(SQLModel, table=True):
     __tablename__ = "user"
@@ -34,6 +34,7 @@ class ProductTable(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
     product_name: str | None
+    package_detail: str = Field(sa_column=Column(String(500)))
     product_image: str | None
     unit_price: float | None
     stock_amount: int | None

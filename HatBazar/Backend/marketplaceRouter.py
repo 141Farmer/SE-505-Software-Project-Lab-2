@@ -10,7 +10,6 @@ from models import FarmTable
 from Database import Database
 from fastapi import HTTPException
 from ImageHandler import ImageHandler
-from pydantic import BaseModel
 
 
 marketplace_router = APIRouter()
@@ -18,16 +17,6 @@ marketplace_router = APIRouter()
 
 market = Marketplace()
 
-class GetProductResponse(BaseModel):
-    product_id: int
-    product_name: str
-    product_image: str
-    rating: float | None
-    unit_price: float
-    stock_amount: int
-    farm_name: str
-    farm_addresss: str
-    production_procedure: str
 
 @marketplace_router.get("/", response_model=List[GetProductResponse])   
 def browseProducts():
@@ -35,7 +24,7 @@ def browseProducts():
 
 
 @marketplace_router.post("/addproduct")
-def addProduct(name: str= Form(...), image: UploadFile = File(...), price: float= Form(...), stock: int= Form(...), production_procedure:str= Form(...), current_user = Depends(AuthHandler.get_current_user)):
+def addProduct(name: str= Form(...), package_detail:str=Form(...), image: UploadFile = File(...), price: float= Form(...), stock: int= Form(...), production_procedure:str= Form(...), current_user = Depends(AuthHandler.get_current_user)):
     query = select(FarmTable).where(FarmTable.username == current_user.username)
     db_farm = Database.read_one(query=query)
 
@@ -47,7 +36,7 @@ def addProduct(name: str= Form(...), image: UploadFile = File(...), price: float
 
 
     product = Product(
-        name=name, image=image_url, 
+        name=name, package_detail=package_detail, image=image_url, 
         price=price, stockAmount=stock,
         productionProcedure=production_procedure, farmName=db_farm.username,
         farmAddress= db_farm.address

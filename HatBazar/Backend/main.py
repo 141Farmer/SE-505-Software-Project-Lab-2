@@ -43,6 +43,14 @@ async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(
     return user.login(form_data.username, form_data.password)
 
 
+@app.get("/user-role")
+def getUserRole(current_user = Depends(AuthHandler.get_current_user)):
+    query = select(FarmTable).where(FarmTable.username == current_user.username)
+    if Database.read_one(query=query):
+        return {"role": "farm"}
+    return {"role": "user"}
+
+
 @app.post("/createfarm/")              # response_model=CreateFarmResponse)
 def createFarm(createFarm: CreateFarm, current_user = Depends(AuthHandler.get_current_user)):
     username = current_user.username

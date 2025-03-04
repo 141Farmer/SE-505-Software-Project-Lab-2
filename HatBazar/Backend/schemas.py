@@ -54,6 +54,7 @@ class CreateProductResponse(BaseModel):
 class GetProductResponse(BaseModel):
     product_id: int
     product_name: str
+    package_detail: str
     product_image: str
     rating: float | None
     unit_price: float
