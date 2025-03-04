@@ -6,16 +6,8 @@ from schemas import OfferResponse
 
 router = APIRouter(prefix='', tags=['Post'])
 
-@router.post("/makeoffer/")
+@router.post("/makebid/")
 def makeInvestmentOffer():
         return 
 
-'''
-@router.post("/commentpost/")
-def returnInvestmentShare():
-        return   
-'''
 
-@router.get("/getoffer/", response_model=List[OfferResponse])
-def getInvestmentOffer():
-        return Investment.getInvestmentOffer()
