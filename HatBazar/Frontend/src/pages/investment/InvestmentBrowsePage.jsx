@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import SubNavbar from '../../components/SubNavbar/SubNavbar';
 import HandleNegotiate from '../../components/investment/HandleNegotiate';
@@ -7,53 +7,31 @@ function InvestmentBrowsePage() {
   // State for the current tab
   const [currentTab, setCurrentTab] = useState('browse');
 
-  // Example active offers
-  const [activeOffers, setActiveOffers] = useState([
-    {
-      id: 1,
-      poster: "John Doe",
-      principle: 10000,
-      duration: 12,
-      profitRate: 15,
-      details: "Looking for investment in a tech startup.",
-      date: "22/01/2025",
-      negotiations: []
-    },
-    {
-      id: 2,
-      poster: "Jane Smith",
-      principle: 15000,
-      duration: 24,
-      profitRate: 12,
-      details: "Expanding an agricultural project.",
-      date: "12/01/2025",
-      negotiations: []
-    },
-    {
-      id: 3,
-      poster: "Kamrul",
-      principle: 1500000000,
-      duration: 60,
-      profitRate: 1,
-      details: "Expanding an agricultural project.",
-      date: "01/01/2025",
-      negotiations: []
-    },
-    {
-      id: 4,
-      poster: "Kibria",
-      principle: 200,
-      duration: 1,
-      profitRate: 20,
-      details: "Expanding an agricultural project.",
-      date: "01/02/2025",
-      negotiations: []
-    },
-  ]);
+  // State for active offers fetched from the backend
+  const [activeOffers, setActiveOffers] = useState([]);
 
-  // Handle negotiations
+  // State for negotiation inputs
   const [negotiationInputs, setNegotiationInputs] = useState({});
 
+  // Fetch offers from the backend when the component mounts
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/getoffer/');
+        if (!response.ok) {
+          throw new Error('Failed to fetch offers');
+        }
+        const data = await response.json();
+        setActiveOffers(data); // Update state with fetched offers
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+      }
+    };
+
+    fetchOffers();
+  }, []);
+
+  // Handle input changes for negotiations
   const handleInputChange = (offerId, field, value) => {
     setNegotiationInputs((prevInputs) => ({
       ...prevInputs,
@@ -64,6 +42,7 @@ function InvestmentBrowsePage() {
     }));
   };
 
+  // Render the offers
   const renderOffers = () => (
     <div>
       {activeOffers.map((offer) => (
@@ -71,11 +50,12 @@ function InvestmentBrowsePage() {
           key={offer.id}
           className="p-4 mb-4 border rounded-lg bg-white shadow-sm"
         >
-          <h2 className="text-lg font-semibold">{offer.poster}</h2>
-          <p>Principle: ${offer.principle}</p>
-          <p>Duration: {offer.duration} months</p>
-          <p>Profit Rate: {offer.profitRate}%</p>
-          <p>Details: {offer.details}</p>
+          <h2 className="text-lg font-semibold">{offer.user_name}</h2>
+          <p>Principle: ${offer.offer_investment_principle}</p>
+          <p>Duration: {offer.offer_investment_duration_month} months</p>
+          <p>Profit Rate: {offer.offer_investment_rate}%</p>
+          <p>Details: {offer.offer_description}</p>
+          <p>Date: {new Date(offer.offer_creation_time).toLocaleDateString()}</p>
 
           {/* Negotiation Form */}
           <div className="mt-4 space-y-2">
@@ -119,7 +99,7 @@ function InvestmentBrowsePage() {
           {/* Negotiations */}
           <div className="mt-4">
             <h3 className="text-sm font-semibold">Negotiations:</h3>
-            {offer.negotiations.length > 0 ? (
+            {offer.negotiations && offer.negotiations.length > 0 ? (
               offer.negotiations.map((negotiation) => (
                 <div
                   key={negotiation.id}

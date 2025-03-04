@@ -85,4 +85,14 @@ class CommentResponse(BaseModel):
     comment_text: str
     commented_time: str
 
+class OfferResponse(BaseModel):
+    offer_id: int
+    user_name: str  
+    offer_description: str 
+    offer_creation_time: datetime 
+    offer_investment_principle: float 
+    offer_investment_rate: float 
+    offer_share_dividing_period_month: int 
+    offer_investment_duration_month: int 
+
     
