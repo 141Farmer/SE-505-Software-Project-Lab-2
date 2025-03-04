@@ -48,22 +48,29 @@ class AuthHandler:
 
     @classmethod
     def get_current_user(cls, token: str = Depends(oauth2_scheme)):
+        print("Received Token:", token)  # ✅ Debug: Check token
         credentials_exception = HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        
+
         payload = cls.decode_access_token(token)
+        print("Decoded Token:", payload)  # ✅ Debug: Check decoded content
+
         if payload is None:
             raise credentials_exception
+
         username: str = payload.get("sub")
         if username is None:
             raise credentials_exception
-        
+
         with Database.get_session() as session:
             query = select(UserTable).where(UserTable.username == username)
             db_user = session.exec(query).first()
             if db_user is None:
                 raise credentials_exception
-            return db_user
+
+        print("Authenticated User:", db_user.username)  # ✅ Debug: Check retrieved user
+        return db_user
+

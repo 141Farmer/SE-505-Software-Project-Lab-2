@@ -22,7 +22,7 @@ class Database:
     @classmethod
     def get_session(cls):
         return Session(cls.engine)
-    
+      
 
     @classmethod
     def read_all(cls, query):
@@ -72,7 +72,3 @@ class Database:
         except Exception as e:
             print(f"Error updating in database: {e}")
             return None
-        
-
-
-            

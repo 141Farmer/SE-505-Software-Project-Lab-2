@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime, timezone, date
 from fastapi import File, UploadFile
 
 class UserCreate(BaseModel):
@@ -60,5 +61,28 @@ class GetProductResponse(BaseModel):
     unit_price: float
     stock_amount: int
     farm_name: str
-    farm_addresss: str
-    production_procedure: str
+    farm_addresss: str | None
+    production_procedure: str | None
+
+
+class PostResponse(BaseModel):
+    post_id: int
+    user_name: str
+    post_title: str
+    post_content: str
+    upvote_count: int 
+    downvote_count: int
+    posted_time: datetime
+
+class PostCreate(BaseModel):
+    user_name: str
+    post_title: str
+    post_content: str
+
+class CommentResponse(BaseModel):
+    comment_id: int
+    user_name: str
+    comment_text: str
+    commented_time: str
+
+    

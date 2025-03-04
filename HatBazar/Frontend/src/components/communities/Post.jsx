@@ -44,11 +44,25 @@ function ForumPost({ post }) {
       // Add downvote
       setDownvoteCount(downvoteCount + 1);
       setIsDownvoted(true);
-      
     }
   };
 
-  const toggleComments = () => setShowComments(!showComments);
+  const toggleComments = async () => {
+    setShowComments(!showComments);
+  
+    if (!showComments) { // Fetch only when opening comments
+      try {
+        const response = await fetch('http://127.0.0.1:8000/getcomment/');
+        if (!response.ok) throw new Error("Failed to fetch comments");
+        
+        const data = await response.json();
+        setComments(data.map(comment => comment.comment_text)); // Assuming backend returns comments with "comment_text"
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+      }
+    }
+  };
+  
 
   const handleAddComment = () => {
     if (newComment.trim()) {
@@ -61,17 +75,17 @@ function ForumPost({ post }) {
     <div className="border rounded-lg p-6 bg-white shadow-md transition-all duration-300 hover:shadow-lg">
       {/* User and Date Info */}
       <div className="flex justify-between items-center mb-3">
-        <span className="text-violet-400 font-medium">Posted by {post.user}</span>
-        <span className="text-gray-400">{post.date}</span>
+        <span className="text-violet-400 font-medium">Posted by {post.username}</span>
+        <span className="text-gray-400">{post.postedTime}</span>
       </div>
 
       <h2 className="text-2xl font-semibold text-black mb-2">{post.title}</h2>
       <p className="text-black mb-4">{post.content}</p>
-      
+
       {/* Voting Buttons */}
       <div className="flex items-center space-x-4 mt-4">
-        <button 
-          onClick={handleUpvote} 
+        <button
+          onClick={handleUpvote}
           className={`font-semibold ${
             isUpvoted ? 'text-violet-400' : 'text-violet-600'
           }`}
@@ -79,8 +93,8 @@ function ForumPost({ post }) {
           {isUpvoted ? '★ Upvoted' : '☆ Upvote'} ({upvoteCount})
         </button>
 
-        <button 
-          onClick={handleDownvote} 
+        <button
+          onClick={handleDownvote}
           className={`font-semibold ${
             isDownvoted ? 'text-red-400' : 'text-red-600'
           }`}
@@ -100,13 +114,15 @@ function ForumPost({ post }) {
           {comments.length > 0 ? (
             comments.map((comment, index) => (
               <div key={index} className="p-2 border rounded mb-2 bg-gray-100">
-                {comment}
+                <p className="font-semibold">{comment.user_name}:</p>
+                <p>{comment.comment_text}</p>
               </div>
             ))
           ) : (
             <p className="text-gray-500">No comments yet.</p>
           )}
-          
+
+
           {/* Add Comment */}
           <div className="flex mt-4 space-x-2">
             <input

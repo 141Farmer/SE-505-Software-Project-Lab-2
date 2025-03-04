@@ -46,3 +46,55 @@ class ProductTable(SQLModel, table=True):
     
     def __repr__(self):
         return self.product_name
+
+class PostTable(SQLModel, table=True):
+    __tablename__ = "post"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_name: str | None = Field(foreign_key="user.username")
+    post_title: str | None
+    post_content: str | None
+    upvote_count: int | None
+    downvote_count: int | None
+    posted_time: datetime = Field(default=datetime.now(timezone.utc))
+
+class CommentTable(SQLModel, table=True):
+    __tablename__ = "comments"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int | None = Field(foreign_key="post.id")
+    user_name: str | None = Field(foreign_key="user.username")
+    comment_text: str | None
+    commented_time: datetime = Field(default=datetime.now(timezone.utc))
+
+class VoteTable(SQLModel, table=True):
+    __tablename__="vote"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    post_id: int | None = Field(foreign_key="post.id")
+    user_name: str | None = Field(foreign_key="user.username")
+    vote: int | None
+
+'''
+class InvestmentOfferTable(SQLModel, table=True):
+    __tablename__= "offer"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    farm_id: int | None = Field(foreign_key="farm.id")
+    offer_title: str | None 
+    offer_content: str | None
+    offer_creation_time: datetime = Field(default=datetime.now(timezone.utc))
+
+
+class InvestmentBidTable(SQLModel, table=True):
+    __tablename__= "bid"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    investment_offer_id: int | None = Field(foreign_key="offer.id") 
+    investor_id: int | None = Field(foreign_key="investor.id") 
+    bid_content: str | None
+    bid_creation_time: datetime = Field(default=datetime.now(timezone.utc))
+
+class InvestmentTable(SQLModel, table=True):
+    __tablename__="investment"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    farm_id: int | None = Field(foreign_key="farm.id")
+    user_name: str | None = Field(foreign_key="user.id")
+    vote: int | None
+
+'''
