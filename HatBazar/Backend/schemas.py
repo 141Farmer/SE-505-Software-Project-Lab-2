@@ -83,4 +83,10 @@ class PostCreate(BaseModel):
     post_title: str
     post_content: str
 
+class CommentResponse(BaseModel):
+    comment_id: int
+    user_name: str
+    comment_text: str
+    commented_time: str
+
     

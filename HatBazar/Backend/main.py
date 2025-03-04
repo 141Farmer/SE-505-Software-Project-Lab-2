@@ -5,6 +5,7 @@ from sqlmodel import Session, select
 from Database import Database
 from User import User
 from CommunityRouter import router as community_router
+from PostRouter import router as post_router
 from Community import Community
 from models import UserTable, InvestorTable, FarmTable, ProductTable
 from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
@@ -151,3 +152,5 @@ def get_product(product_id: int):
         )
 
 app.include_router(community_router)
+
+app.include_router(post_router)
