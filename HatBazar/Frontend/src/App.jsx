@@ -12,6 +12,11 @@ import Forum from "./pages/community/Forum";
 import ContractSection from "./components/ContractSection";
 import { Toaster } from "react-hot-toast";
 import Cart from "./pages/marketplace/cart";
+// import Checkout from "./pages/marketplace/Checkout"
+import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
+import PaymentMethod from "./pages/marketplace/Payment";
+// import OrderSummary from "./pages/marketplace/OrderSummary";
+// import OrderConfirmation from "./pages/marketplace/OrderConfirmation";
 
 const App = () => {
   return (
@@ -28,7 +33,11 @@ const App = () => {
         <Route path="/investcreate" element={<InvestmentCreatePage />} />
         <Route path="/investbrowse" element={<InvestmentBrowsePage />} />
         <Route path="/contract" element={<ContractSection />} />
-         <Route path="/cart" element={<Cart />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/delivery-address" element={<DeliveryAddress />} />
+        <Route path="/payment" element={<PaymentMethod />} />
+        {/* <Route path="/order-summary" element={<OrderSummary />} />
+        <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
       </Routes>
     </Router>
     

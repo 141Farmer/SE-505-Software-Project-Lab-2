@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { X, ShoppingCart, Check, Plus, Minus, Truck, Package } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast } from "react-hot-toast";
+import {useNavigate } from "react-router-dom"
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
+  const navigate = useNavigate()
 
   // Load cart items from localStorage on component mount
   useEffect(() => {
@@ -37,15 +39,16 @@ const Cart = () => {
     total + (item.unit_price * (item.quantity || 1)), 0);
 
   // Confirm order (placeholder function)
-  const handleConfirmOrder = () => {
+  const handleProceedCheckout = () => {
     if (cartItems.length === 0) {
       toast.error("Your cart is empty!");
       return;
     }
 
-    toast.success('Order confirmed! Thank you for your purchase.');
-    localStorage.removeItem('cart'); // Clear the cart after order confirmation
-    setCartItems([]); // Update state to reflect empty cart
+    navigate("/delivery-address");
+    // toast.success('Order confirmed! Thank you for your purchase.');
+    // localStorage.removeItem('cart'); // Clear the cart after order confirmation
+    // setCartItems([]); // Update state to reflect empty cart
   };
 
   return (
@@ -131,10 +134,10 @@ const Cart = () => {
                 </span>
               </div>
               <button
-                onClick={handleConfirmOrder}
+                onClick={handleProceedCheckout}
                 className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
               >
-                <Check className="w-5 h-5 mr-2" /> Confirm Order
+                <Check className="w-5 h-5 mr-2" /> Proceed Checkout
               </button>
             </div>
           </div>
