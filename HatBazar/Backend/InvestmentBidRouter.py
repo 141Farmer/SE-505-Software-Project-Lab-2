@@ -4,7 +4,7 @@ from AuthHandler import AuthHandler
 from typing import List
 from schemas import OfferResponse
 
-router = APIRouter(prefix='', tags=['Post'])
+router = APIRouter(prefix='', tags=['Bid'])
 
 @router.post("/makebid/")
 def makeInvestmentOffer():

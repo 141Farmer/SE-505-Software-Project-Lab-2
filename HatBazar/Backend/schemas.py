@@ -94,4 +94,12 @@ class OfferResponse(BaseModel):
     offer_share_dividing_period_month: int 
     offer_investment_duration_month: int 
 
+class OfferCreate(BaseModel):
+    offer_description: str
+    offer_creation_time: datetime 
+    offer_investment_principle: float 
+    offer_investment_rate: float 
+    offer_share_dividing_period_month: int 
+    offer_investment_duration_month: int 
+
     

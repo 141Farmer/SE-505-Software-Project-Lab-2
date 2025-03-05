@@ -1,35 +1,39 @@
 from Database import Database
-from schemas import PostResponse, CommentResponse
+from schemas import OfferCreate
 from sqlmodel import select, update
-from models import PostTable, CommentTable
+from models import InvestmentOfferTable, FarmTable
 from typing import List
 from datetime import datetime, timezone
+from fastapi import HTTPException
 
 class Offer:
-          def votePost(post_id, vote, currentUser):
+
+          def postInvestment(self, investmentOffer, currentUser):
                     with Database.get_session() as session:
-                              selectQuery = select(PostTable).where(PostTable.id == post_id)
-                              post = session.exec(selectQuery).first()
+                              query=select(FarmTable).where(FarmTable.username==currentUser.username)
+                              farmId=session.exec(query).first().id
 
-                              if not post:
-                                        return {"error": "Post not found"}
 
-                              if vote == 1:
-                                        up_count = post.upvote_count + 1
-                                        do_count = post.downvote_count
-                              else:
-                                        up_count = post.upvote_count
-                                        do_count = post.downvote_count + 1
+                    newOffer=InvestmentOfferTable(
+                              farm_id=farmId,
+                              user_name=currentUser.username,
+                              offer_description=investmentOffer.offer_description,
+                              offer_creation_time=investmentOffer.offer_creation_time,
+                              offer_investment_principle=investmentOffer.offer_investment_principle,
+                              offer_investment_rate=investmentOffer.offer_investment_rate,
+                              offer_share_dividing_period_month=investmentOffer.offer_share_dividing_period_month,
+                              offer_investment_duration_month=investmentOffer.offer_investment_duration_month
+                    )
 
-                              updateQuery = update(PostTable).where(PostTable.id == post_id).values(
-                                        downvote_count=do_count, 
-                                        upvote_count=up_count
-                              )
-                              session.exec(updateQuery)
-                              session.commit()
+                    tableRow=Database.write(newOffer)
 
-                    return {'message': 'Vote added successfully'}
+                    if not tableRow:
+                              raise HTTPException(status_code=500, detail="Error offer creating")
+                    
+                    return {'message': 'Offer created successfully'}  
 
+
+          '''
           def getOffers():
                     print('Post id is',post_id)
                     with Database.get_session() as session:
@@ -63,3 +67,4 @@ class Offer:
                               session.refresh(new_comment)
 
                     return {"message": "Comment added successfully"}
+          '''

@@ -1,15 +1,20 @@
 from fastapi import APIRouter, Depends
-from Offer import Offer
+from InvestmentOffer import Offer
 from AuthHandler import AuthHandler
 from typing import List
-from schemas import OfferResponse
+from schemas import OfferResponse, OfferCreate
 
 router = APIRouter(prefix='', tags=['Offer'])
 
-@router.post("/votepost/{post_id}")
-def voteCommunityPost(post_id: int, vote: int, currentUser=Depends(AuthHandler.get_current_user)):
-        return Post.votePost(post_id, vote, currentUser)
+offer=Offer()
 
+
+@router.post("/postoffer/")
+def postInvestmentOffer(investmentOffer: OfferCreate, currentUser=Depends(AuthHandler.get_current_user)):
+        return offer.postInvestment(investmentOffer, currentUser)
+
+
+'''
 @router.post("/commentpost/")
 def commentCommunityPost(post_id: int, comment: str, currentUser=Depends(AuthHandler.get_current_user)):
         return Post.commentCommunityPost(post_id, comment, currentUser)  
@@ -18,7 +23,7 @@ def commentCommunityPost(post_id: int, comment: str, currentUser=Depends(AuthHan
 def getInvestmentOffer():
         return Offer.getComment()
 
-'''
+
 offer               bid                 investment
 postoffer           postbid
 acceptbid
