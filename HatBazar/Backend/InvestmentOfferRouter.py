@@ -25,8 +25,9 @@ def getInvestmentOffer():
 
 
 offer               bid                 investment
-postoffer           postbid
+postoffer--         postbid--
 acceptbid
-                                        showoffer
+                                        showoffer--
+                                        showbid
                                         saveoffer
 '''

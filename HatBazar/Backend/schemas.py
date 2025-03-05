@@ -102,4 +102,20 @@ class OfferCreate(BaseModel):
     offer_share_dividing_period_month: int 
     offer_investment_duration_month: int 
 
+class BidResponse(BaseModel):
+    bid_id: int
+    user_name: str
+    bid_creation_time: datetime 
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int
+
+class BidCreate(BaseModel):
+    bid_creation_time: datetime 
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int 
+
     
