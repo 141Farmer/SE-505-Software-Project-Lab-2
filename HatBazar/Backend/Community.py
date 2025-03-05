@@ -1,7 +1,8 @@
 from Database import Database
 from schemas import PostResponse, PostCreate
 from sqlmodel import select
-from models import PostTable, UserTable
+from sqlalchemy import func
+from models import PostTable, UserTable, VoteTable
 from typing import List
 from fastapi import HTTPException
 
@@ -36,14 +37,21 @@ class Community:
         postResponses=[]
 
         for post in posts:
+            with Database.get_session() as session:
+                upvote_query=select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == 1)
+                upvoteCount = session.exec(upvote_query).first() or 0
+        
+                downvote_query = select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == -1)
+                downvoteCount = session.exec(downvote_query).first() or 0
+
             postResponses.append(
                 PostResponse(
                     post_id=post.id,
                     user_name=post.user_name,
                     post_title=post.post_title,
                     post_content=post.post_content,
-                    upvote_count=post.upvote_count,
-                    downvote_count=post.downvote_count,
+                    upvote_count=upvoteCount,
+                    downvote_count=downvoteCount,
                     posted_time=post.posted_time
                 )
             )

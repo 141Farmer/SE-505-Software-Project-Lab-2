@@ -82,7 +82,7 @@ class CommentResponse(BaseModel):
     comment_id: int
     user_name: str
     comment_text: str
-    commented_time: str
+    commented_time: datetime
 
 class OfferResponse(BaseModel):
     offer_id: int

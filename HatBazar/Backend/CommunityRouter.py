@@ -16,3 +16,10 @@ def getCommunityPost():
 @router.post("/addpost/")
 def addCommunityPost(post: PostCreate, currentUser=Depends(AuthHandler.get_current_user)):
         return community.addPost(post, currentUser)
+
+'''
+community--                post
+getpost--                  votepost
+addpost--                  commentpost
+deletepost               getcomment
+'''

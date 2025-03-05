@@ -18,14 +18,3 @@ def acceptInvestmentOffer(offerId: int, currentUser=Depends(AuthHandler.get_curr
         return offer.acceptOffer(offerId, currentUser)
 
 
-'''
-
-
-
-offer(farm)         bid(investor)       investment(system)
-postoffer--         postbid--
-acceptoffer         acceptbid
-                                        showoffer--
-                                        showbid--
-                                        saveoffer--
-'''
