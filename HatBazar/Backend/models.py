@@ -102,6 +102,7 @@ class InvestmentTable(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
     user_id: int | None = Field(foreign_key="user.id")
+    investment_creation_time: datetime = Field(default=datetime.now(timezone.utc))
     investment_principle: float | None
     investment_rate: float | None
     share_dividing_period_month: int | None 

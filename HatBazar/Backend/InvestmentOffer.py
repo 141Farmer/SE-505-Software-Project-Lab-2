@@ -1,10 +1,11 @@
 from Database import Database
-from schemas import OfferCreate
+from schemas import OfferCreate, InvestmentResponse
 from sqlmodel import select, update
 from models import InvestmentOfferTable, FarmTable
 from typing import List
 from datetime import datetime, timezone
 from fastapi import HTTPException
+from Investment import Investment
 
 class Offer:
 
@@ -12,7 +13,6 @@ class Offer:
                     with Database.get_session() as session:
                               query=select(FarmTable).where(FarmTable.username==currentUser.username)
                               farmId=session.exec(query).first().id
-
 
                     newOffer=InvestmentOfferTable(
                               farm_id=farmId,
@@ -32,39 +32,26 @@ class Offer:
                     
                     return {'message': 'Offer created successfully'}  
 
+          def acceptOffer(self, offerId, currentUser):
+                    query=select(InvestmentOfferTable).where(InvestmentOfferTable.id==offerId)
+                    offer=Database.read_one(query)
+                    farmId=offer.farm_id
+                    userId=currentUser.id
 
-          '''
-          def getOffers():
-                    print('Post id is',post_id)
-                    with Database.get_session() as session:
-                              query = select(CommentTable).where(CommentTable.post_id == post_id)
-                              comments = session.exec(query).all()
-                              if not comments:
-                                        raise ValueError("No post found")
+                    investmentResponse=InvestmentResponse(
+                              principle=offer.offer_investment_principle,
+                              rate=offer.offer_investment_rate,
+                              share_dividing_month=offer.offer_share_dividing_period_month,
+                              duration_month=offer.offer_investment_duration_month
+                              
+                    )
 
-                              commentResponses = [
-                                        CommentResponse(
-                                                  comment_id=comment.id,
-                                                  user_name=comment.user_name,
-                                                  comment_text=comment.comment_text,
-                                                  commented_time=comment.commented_time
-                                        )
-                                        for comment in comments
-                              ]
 
-                              return commentResponses
+                    investment=Investment()
+                    message=investment.makeOffer(farmId, userId, investmentResponse)
+                    if not message:
+                              raise HTTPException(status_code=500, detail="Error returning offer message")
+                    return {'message': 'Offer accepted successfully'}
 
-          def commentCommunityPost(post_id: int, comment: str, currentUser):
-                    with Database.get_session() as session:
-                              new_comment = CommentTable(
-                                        post_id=post_id,
-                                        user_name=currentUser.username, 
-                                        comment_text=comment,
-                                        commented_time=datetime.now(timezone.utc)
-                              )
-                              session.add(new_comment)  
-                              session.commit()
-                              session.refresh(new_comment)
 
-                    return {"message": "Comment added successfully"}
-          '''
+          

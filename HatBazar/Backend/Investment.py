@@ -1,19 +1,30 @@
 from Database import Database
-from schemas import OfferResponse, BidResponse
+from schemas import OfferResponse, BidResponse, InvestmentResponse
 from sqlmodel import select, update
-from models import InvestmentOfferTable, InvestmentBidTable
+from models import InvestmentOfferTable, InvestmentBidTable, InvestmentTable
 from typing import List
 from datetime import datetime, timezone
 
 class Investment:
-          def makeInvestmentOffer(post_id, vote, currentUser):
-                   
 
-                    return {'message': 'Vote added successfully'}
+          def makeOffer(self, farmId: int, userId: int, investmentResponse: InvestmentResponse):
+                    newInvestment=InvestmentTable(
+                              farm_id=farmId,
+                              user_id=userId,
+                              investment_principle=investmentResponse.principle,
+                              investment_rate=investmentResponse.rate,
+                              share_dividing_period_month=investmentResponse.share_dividing_month,
+                              investment_duration_month=investmentResponse.duration_month,
+                              transaction_id=''
+                    )
 
-          def makeInvestmentOffer(post_id: int):
-                    pass
-                              
+                    tableRow=Database.write(newInvestment)
+
+                    if not tableRow:
+                              raise HTTPException(status_code=500, detail="Error investment creating")
+                    
+                    return {'message': 'Investment created successfully'}
+
 
           def getOffer(self):
                     query=select(InvestmentOfferTable)
@@ -39,6 +50,7 @@ class Investment:
                               )
                     return offerResponses
           
+
           def getBid(self, offerId):
                     query=select(InvestmentBidTable).where(InvestmentBidTable.investment_offer_id==offerId)
                     bids=Database.read_all(query)
@@ -61,5 +73,3 @@ class Investment:
                                         )
                               )
                     return bidResponses
-
-                    
