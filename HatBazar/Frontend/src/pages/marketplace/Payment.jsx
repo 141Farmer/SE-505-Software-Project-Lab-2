@@ -18,7 +18,7 @@ const Payment = ({ cartItems, totalPrice, deliveryAddress, onNext }) => {
     //   return;
     // }
     // onNext({ paymentDetails });
-    na
+    navigate("/order-summary")
   };
 
   return (

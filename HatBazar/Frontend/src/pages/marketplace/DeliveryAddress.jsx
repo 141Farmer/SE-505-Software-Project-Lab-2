@@ -1,131 +1,137 @@
-import React, { useState } from 'react';
-import { MapPin, User, Phone, Building } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Truck, Check } from 'lucide-react';
+import Navbar from '../../components/Navbar/Navbar';
 import { useNavigate } from 'react-router-dom';
 
-const DeliveryAddress = ({ checkoutData, onAddressSubmit }) => {
-  const [address, setAddress] = useState({
-    fullName: '',
-    phoneNumber: '',
-    streetAddress: '',
-    city: '',
-    postalCode: '',
-    additionalInfo: ''
-  });
+const DeliveryAddress = () => {
+  const [buildingHouseNo, setBuildingHouseNo] = useState('');
+  const [street, setStreet] = useState('');
+  const [area, setArea] = useState('');
+  const [city, setCity] = useState('');
+  const navigate = useNavigate()
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    const savedAddress = localStorage.getItem('deliveryAddress');
+    if (savedAddress) {
+      const parsedAddress = JSON.parse(savedAddress);
+      setBuildingHouseNo(parsedAddress.buildingHouseNo || '');
+      setStreet(parsedAddress.street || '');
+      setArea(parsedAddress.area || '');
+      setCity(parsedAddress.city || '');
+    }
+  }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setAddress(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleProceedToPay = (e) => {
     e.preventDefault();
-    
-    // Basic validation
-    if (!address.fullName || !address.phoneNumber || !address.streetAddress) {
-      alert('Please fill in all required fields');
+
+    if (!buildingHouseNo || !street || !area || !city) {
+      alert('Please fill in all address fields');
       return;
     }
 
-    onAddressSubmit(address);
-    navigate('/payment');
+    const addressData = {
+      buildingHouseNo,
+      street,
+      area,
+      city
+    };
+
+    localStorage.setItem('deliveryAddress', JSON.stringify(addressData));
+
+    navigate("/payment")
   };
 
   return (
-    <div className="min-h-screen bg-green-100 p-6">
-      <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-        <h2 className="text-2xl font-bold mb-6 flex items-center">
-          <MapPin className="mr-3 text-green-600" /> Delivery Address
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="flex items-center mb-2">
-              <User className="mr-2 text-gray-500" /> Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={address.fullName}
-              onChange={handleInputChange}
-              placeholder="Enter full name"
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="flex items-center mb-2">
-              <Phone className="mr-2 text-gray-500" /> Phone Number
-            </label>
-            <input
-              type="tel"
-              name="phoneNumber"
-              value={address.phoneNumber}
-              onChange={handleInputChange}
-              placeholder="Enter phone number"
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="flex items-center mb-2">
-              <Building className="mr-2 text-gray-500" /> Street Address
-            </label>
-            <input
-              type="text"
-              name="streetAddress"
-              value={address.streetAddress}
-              onChange={handleInputChange}
-              placeholder="Enter street address"
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+    <div className="min-h-screen bg-green-100 flex items-center justify-center">
+      <Navbar />
+      <div className="w-full max-w-md px-4">
+        <div className="flex items-center mb-8">
+          <Truck className="w-8 h-8 mr-2 text-gray-900" />
+          <h1 className="text-3xl font-bold text-gray-900">Delivery Address</h1>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <form onSubmit={handleProceedToPay} className="space-y-4">
             <div>
-              <label className="block mb-2">City</label>
+              <label 
+                htmlFor="buildingHouseNo" 
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Building/House No.
+              </label>
               <input
+                id="buildingHouseNo"
                 type="text"
-                name="city"
-                value={address.city}
-                onChange={handleInputChange}
-                placeholder="City"
-                className="w-full p-2 border rounded-md"
+                value={buildingHouseNo}
+                onChange={(e) => setBuildingHouseNo(e.target.value)}
+                placeholder="Enter building/house number"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
+
             <div>
-              <label className="block mb-2">Postal Code</label>
+              <label 
+                htmlFor="street" 
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Street
+              </label>
               <input
+                id="street"
                 type="text"
-                name="postalCode"
-                value={address.postalCode}
-                onChange={handleInputChange}
-                placeholder="Postal Code"
-                className="w-full p-2 border rounded-md"
+                value={street}
+                onChange={(e) => setStreet(e.target.value)}
+                placeholder="Enter street name"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
             </div>
-          </div>
-          <div>
-            <label className="block mb-2">Additional Information</label>
-            <textarea
-              name="additionalInfo"
-              value={address.additionalInfo}
-              onChange={handleInputChange}
-              placeholder="Additional delivery instructions"
-              className="w-full p-2 border rounded-md"
-              rows="3"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-green-500 text-white p-3 rounded-md hover:bg-green-600 transition"
-          >
-            Proceed to Payment
-          </button>
-        </form>
+
+            <div>
+              <label 
+                htmlFor="area" 
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Area
+              </label>
+              <input
+                id="area"
+                type="text"
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                placeholder="Enter area"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <label 
+                htmlFor="city" 
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
+                City
+              </label>
+              <input
+                id="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Enter city"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            >
+              <Check className="w-5 h-5 mr-2" /> Proceed to Pay
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   );

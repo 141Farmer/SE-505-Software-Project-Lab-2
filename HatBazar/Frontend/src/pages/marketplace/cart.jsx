@@ -8,13 +8,11 @@ const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
   const navigate = useNavigate()
 
-  // Load cart items from localStorage on component mount
   useEffect(() => {
     const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
     setCartItems(storedCart);
   }, []);
 
-  // Remove an item from the cart
   const handleRemoveItem = (productId) => {
     const updatedCart = cartItems.filter((item) => item.product_id !== productId);
     setCartItems(updatedCart);
@@ -22,7 +20,6 @@ const Cart = () => {
     toast.success("Product removed from cart!");
   };
 
-  // Update item quantity
   const updateQuantity = (productId, newQuantity) => {
     const updatedCart = cartItems.map(item => 
       item.product_id === productId
@@ -34,11 +31,9 @@ const Cart = () => {
     localStorage.setItem('cart', JSON.stringify(updatedCart));
   };
 
-  // Calculate total price
   const totalPrice = cartItems.reduce((total, item) => 
     total + (item.unit_price * (item.quantity || 1)), 0);
 
-  // Confirm order (placeholder function)
   const handleProceedCheckout = () => {
     if (cartItems.length === 0) {
       toast.error("Your cart is empty!");
@@ -46,9 +41,6 @@ const Cart = () => {
     }
 
     navigate("/delivery-address");
-    // toast.success('Order confirmed! Thank you for your purchase.');
-    // localStorage.removeItem('cart'); // Clear the cart after order confirmation
-    // setCartItems([]); // Update state to reflect empty cart
   };
 
   return (

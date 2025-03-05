@@ -75,7 +75,6 @@ class PostResponse(BaseModel):
     posted_time: datetime
 
 class PostCreate(BaseModel):
-    # user_name: str
     post_title: str
     post_content: str
 
