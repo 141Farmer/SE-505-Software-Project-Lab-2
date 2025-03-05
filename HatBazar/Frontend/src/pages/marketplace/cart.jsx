@@ -21,14 +21,30 @@ const Cart = () => {
   };
 
   const updateQuantity = (productId, newQuantity) => {
-    const updatedCart = cartItems.map(item => 
+    const productIndex = cartItems.findIndex(item => item.product_id === productId);
+    if (productIndex === -1) return;
+  
+    const product = cartItems[productIndex];
+  
+    if (newQuantity > product.stock_amount) {
+      toast.error("Insufficient stock! You cannot add more than the available quantity.");
+      return;
+    }
+  
+    const validatedQuantity = Math.max(1, newQuantity);
+  
+    const updatedCart = cartItems.map(item =>
       item.product_id === productId
-        ? { ...item, quantity: Math.max(1, newQuantity) }
+        ? { ...item, quantity: validatedQuantity }
         : item
     );
-    
+  
     setCartItems(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
+  
+    if (validatedQuantity !== product.quantity) {
+      toast.success("Cart updated successfully!");
+    }
   };
 
   const totalPrice = cartItems.reduce((total, item) => 
