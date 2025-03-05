@@ -93,5 +93,3 @@ class OfferResponse(BaseModel):
     offer_investment_rate: float 
     offer_share_dividing_period_month: int 
     offer_investment_duration_month: int 
-
-    
