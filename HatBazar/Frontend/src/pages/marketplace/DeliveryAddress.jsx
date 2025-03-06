@@ -13,8 +13,6 @@ const DeliveryAddress = () => {
   useEffect(() => {
     const savedAddress = localStorage.getItem('deliveryAddress');
     if (savedAddress) {
-      // If you want to split the concatenated string back into fields, you can do it here.
-      // For now, we'll just set the saved address as is.
       setBuildingHouseNo(savedAddress.buildingHouseNo || '');
       setStreet(savedAddress.street || '');
       setArea(savedAddress.area || '');
@@ -22,7 +20,7 @@ const DeliveryAddress = () => {
     }
   }, []);
 
-  const handleProceedToPay = (e) => {
+  const handleProceedToPayAndOrder = (e) => {
     e.preventDefault();
 
     if (!buildingHouseNo || !street || !area || !city) {
@@ -30,13 +28,11 @@ const DeliveryAddress = () => {
       return;
     }
 
-    // Concatenate the address fields into one string
     const addressString = `${buildingHouseNo}, ${street}, ${area}, ${city}`;
 
-    // Save the concatenated address string to local storage
     localStorage.setItem('deliveryAddress', addressString);
 
-    navigate("/payment");
+    navigate("/confirm-order");
   };
 
   return (
@@ -49,7 +45,7 @@ const DeliveryAddress = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleProceedToPay} className="space-y-4">
+          <form onSubmit={handleProceedToPayAndOrder} className="space-y-4">
             <div>
               <label 
                 htmlFor="buildingHouseNo" 
@@ -126,7 +122,7 @@ const DeliveryAddress = () => {
               type="submit"
               className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              <Check className="w-5 h-5 mr-2" /> Proceed to Pay and Order
+              <Check className="w-5 h-5 mr-2" /> Proceed to Confirm Order
             </button>
           </form>
         </div>

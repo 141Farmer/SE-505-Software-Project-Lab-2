@@ -56,6 +56,7 @@ const Cart = () => {
       return;
     }
 
+    localStorage.setItem("cartTotalPrice", totalPrice)
     navigate("/delivery-address");
   };
 
