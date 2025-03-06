@@ -8,20 +8,19 @@ const DeliveryAddress = () => {
   const [street, setStreet] = useState('');
   const [area, setArea] = useState('');
   const [city, setCity] = useState('');
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedAddress = localStorage.getItem('deliveryAddress');
     if (savedAddress) {
-      const parsedAddress = JSON.parse(savedAddress);
-      setBuildingHouseNo(parsedAddress.buildingHouseNo || '');
-      setStreet(parsedAddress.street || '');
-      setArea(parsedAddress.area || '');
-      setCity(parsedAddress.city || '');
+      setBuildingHouseNo(savedAddress.buildingHouseNo || '');
+      setStreet(savedAddress.street || '');
+      setArea(savedAddress.area || '');
+      setCity(savedAddress.city || '');
     }
   }, []);
 
-  const handleProceedToPay = (e) => {
+  const handleProceedToPayAndOrder = (e) => {
     e.preventDefault();
 
     if (!buildingHouseNo || !street || !area || !city) {
@@ -29,16 +28,11 @@ const DeliveryAddress = () => {
       return;
     }
 
-    const addressData = {
-      buildingHouseNo,
-      street,
-      area,
-      city
-    };
+    const addressString = `${buildingHouseNo}, ${street}, ${area}, ${city}`;
 
-    localStorage.setItem('deliveryAddress', JSON.stringify(addressData));
+    localStorage.setItem('deliveryAddress', addressString);
 
-    navigate("/payment")
+    navigate("/confirm-order");
   };
 
   return (
@@ -51,7 +45,7 @@ const DeliveryAddress = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6">
-          <form onSubmit={handleProceedToPay} className="space-y-4">
+          <form onSubmit={handleProceedToPayAndOrder} className="space-y-4">
             <div>
               <label 
                 htmlFor="buildingHouseNo" 
@@ -128,7 +122,7 @@ const DeliveryAddress = () => {
               type="submit"
               className="w-full flex items-center justify-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold rounded-lg shadow-md hover:from-green-600 hover:to-green-700 transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
-              <Check className="w-5 h-5 mr-2" /> Proceed to Pay
+              <Check className="w-5 h-5 mr-2" /> Proceed to Confirm Order
             </button>
           </form>
         </div>

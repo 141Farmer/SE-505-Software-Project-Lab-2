@@ -14,9 +14,11 @@ import { Toaster } from "react-hot-toast";
 import Cart from "./pages/marketplace/cart";
 // import Checkout from "./pages/marketplace/Checkout"
 import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
-import PaymentMethod from "./pages/marketplace/Payment";
-import OrderSummary from "./pages/marketplace/OrderSummary";
+// import PaymentMethod from "./pages/marketplace/Payment";
+// import OrderSummary from "./pages/marketplace/OrderSummary";
 // import OrderConfirmation from "./pages/marketplace/OrderConfirmation";
+import ConfirmOrder from "./pages/marketplace/ConfirmOrder";
+
 
 const App = () => {
   return (
@@ -35,8 +37,9 @@ const App = () => {
         <Route path="/contract" element={<ContractSection />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/delivery-address" element={<DeliveryAddress />} />
-        <Route path="/payment" element={<PaymentMethod />} />
-        <Route path="/order-summary" element={<OrderSummary />} />
+        <Route path="/confirm-order" element={<ConfirmOrder />} />
+        {/* <Route path="/payment" element={<PaymentMethod />} /> */}
+        {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
         {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
       </Routes>
     </Router>

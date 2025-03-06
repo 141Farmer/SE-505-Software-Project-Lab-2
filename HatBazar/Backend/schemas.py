@@ -124,4 +124,4 @@ class InvestmentResponse(BaseModel):
     share_dividing_month: int 
     duration_month: int 
 
-    
+ 
