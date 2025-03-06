@@ -82,7 +82,7 @@ class CommentResponse(BaseModel):
     comment_id: int
     user_name: str
     comment_text: str
-    commented_time: str
+    commented_time: datetime
 
 class OfferResponse(BaseModel):
     offer_id: int
@@ -93,3 +93,35 @@ class OfferResponse(BaseModel):
     offer_investment_rate: float 
     offer_share_dividing_period_month: int 
     offer_investment_duration_month: int 
+
+class OfferCreate(BaseModel):
+    offer_description: str
+    offer_creation_time: datetime 
+    offer_investment_principle: float 
+    offer_investment_rate: float 
+    offer_share_dividing_period_month: int 
+    offer_investment_duration_month: int 
+
+class BidResponse(BaseModel):
+    bid_id: int
+    user_name: str
+    bid_creation_time: datetime 
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int
+
+class BidCreate(BaseModel):
+    bid_creation_time: datetime 
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int 
+
+class InvestmentResponse(BaseModel):
+    principle: float 
+    rate: float 
+    share_dividing_month: int 
+    duration_month: int 
+
+ 

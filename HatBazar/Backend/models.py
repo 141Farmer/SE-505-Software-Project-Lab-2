@@ -58,7 +58,7 @@ class PostTable(SQLModel, table=True):
     posted_time: datetime = Field(default=datetime.now(timezone.utc))
 
 class CommentTable(SQLModel, table=True):
-    __tablename__ = "comments"
+    __tablename__ = "comment"
     id: Optional[int] = Field(default=None, primary_key=True)
     post_id: int | None = Field(foreign_key="post.id")
     user_name: str | None = Field(foreign_key="user.username")
@@ -70,7 +70,7 @@ class VoteTable(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     post_id: int | None = Field(foreign_key="post.id")
     user_name: str | None = Field(foreign_key="user.username")
-    vote: int | None
+    value: int | None
 
 
 class InvestmentOfferTable(SQLModel, table=True):
@@ -102,6 +102,7 @@ class InvestmentTable(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     farm_id: int | None = Field(foreign_key="farm.id")
     user_id: int | None = Field(foreign_key="user.id")
+    investment_creation_time: datetime = Field(default=datetime.now(timezone.utc))
     investment_principle: float | None
     investment_rate: float | None
     share_dividing_period_month: int | None 

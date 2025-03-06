@@ -8,6 +8,8 @@ from User import User
 from CommunityRouter import router as community_router
 from PostRouter import router as post_router
 from InvestmentRouter import router as investment_router
+from InvestmentBidRouter import router as bid_router
+from InvestmentOfferRouter import router as offer_router
 from Community import Community
 from models import UserTable, FarmTable, ProductTable
 from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
@@ -17,6 +19,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
 from userRouter import user_router
 from marketplaceRouter import marketplace_router
+
 from AuthHandler import AuthHandler
 from Farm import Farm
 from paymentRouter import payment_router
@@ -38,6 +41,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 app.include_router(investment_router)
+app.include_router(offer_router)
+app.include_router(bid_router)
 app.include_router(community_router)
 app.include_router(post_router)
 app.include_router(user_router, prefix="", tags=["User"])

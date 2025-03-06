@@ -62,13 +62,22 @@ class Database:
         
 
     @classmethod
-    def update(cls, tableElement):      # like write (so no need extra update())
-        try:                            # update is work with read and write in sql model
+    def update(cls, tableElement):
+        try:
             with cls.get_session() as session:
-                session.add(tableElement)
+                # Fetch the existing record
+                existing_record = session.get(tableElement.__class__, tableElement.id)
+                if not existing_record:
+                    raise ValueError(f"Record with id {tableElement.id} not found in {tableElement.__class__.__name__}")
+
+                # Update the fields of the existing record
+                for key, value in tableElement.dict().items():
+                    if key != "id":  # Avoid updating the primary key
+                        setattr(existing_record, key, value)
+
                 session.commit()
-                session.refresh(tableElement)
-                return tableElement
+                session.refresh(existing_record)
+                return existing_record
         except Exception as e:
             print(f"Error updating in database: {e}")
             return None
