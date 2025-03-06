@@ -88,6 +88,14 @@ class CommentCreate(BaseModel):
     post_id: int
     comment: str
 
+class VoteCreate(BaseModel):
+    voteValue: int
+    post_id: int
+
+class VoteCount(BaseModel):
+    upvote_count: int
+    downvote_count: int
+
 class OfferResponse(BaseModel):
     offer_id: int
     user_name: str  

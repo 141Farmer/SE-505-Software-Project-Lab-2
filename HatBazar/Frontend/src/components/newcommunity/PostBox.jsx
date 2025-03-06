@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowUp, ArrowDown, MessageSquare, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom'; // Import useNavigate for navigation
+import VoteHandler from './VoteHandler'; // Import the VoteHandler function
 
 const PostBox = ({ post }) => {
-  const { id, title, content, username, upvotes, downvotes, postedTime } = post;
+  const { id, title, content, username, upvotes: initialUpvotes, downvotes: initialDownvotes, postedTime } = post;
   const navigate = useNavigate(); // Hook for navigation
-  
+
+  // Use state to manage upvotes and downvotes
+  const [upvotesCount, setUpvotes] = useState(initialUpvotes);
+  const [downvotesCount, setDownvotes] = useState(initialDownvotes);
+
   // Format the posted time to a readable format (Reddit-style)
   const formatTime = (timestamp) => {
     const posted = new Date(timestamp);
@@ -22,6 +27,24 @@ const PostBox = ({ post }) => {
   // Handle click on the "Comments" button
   const handleCommentsClick = () => {
     navigate(`/comments/${id}`); // Navigate to the CommentsPage with the post ID
+  };
+
+  // Handle upvote
+  const handleUpvote = async () => {
+    const updatedVotes = await VoteHandler(id, 1); // Await the API call
+    if (updatedVotes) {
+      setUpvotes(updatedVotes.upvote_count); // Update the upvote count
+      setDownvotes(updatedVotes.downvote_count); // Update the downvote count
+    }
+  };
+
+  // Handle downvote
+  const handleDownvote = async () => {
+    const updatedVotes = await VoteHandler(id, -1); // Await the API call
+    if (updatedVotes) {
+      setUpvotes(updatedVotes.upvote_count); // Update the upvote count
+      setDownvotes(updatedVotes.downvote_count); // Update the downvote count
+    }
   };
 
   return (
@@ -49,19 +72,25 @@ const PostBox = ({ post }) => {
         <div className="flex justify-between items-center text-gray-600 text-sm border-t border-gray-200 pt-2">
           {/* Voting buttons */}
           <div className="flex items-center space-x-2">
-            <button className="text-purple-500 hover:text-purple-700 flex items-center">
+            <button
+              onClick={handleUpvote}
+              className="text-purple-500 hover:text-purple-700 flex items-center"
+            >
               <ArrowUp className="h-5 w-5" />
             </button>
-            <span className="font-medium text-green-600">{upvotes}</span>
-            <button className="text-blue-500 hover:text-blue-700 flex items-center">
+            <span className="font-medium text-green-600">{upvotesCount}</span>
+            <button
+              onClick={handleDownvote}
+              className="text-blue-500 hover:text-blue-700 flex items-center"
+            >
               <ArrowDown className="h-5 w-5" />
             </button>
-            <span className="font-medium text-red-600">{downvotes}</span>
+            <span className="font-medium text-red-600">{downvotesCount}</span>
           </div>
 
           {/* Comments button */}
           <button
-            onClick={handleCommentsClick} // Add click handler
+            onClick={handleCommentsClick}
             className="flex items-center text-blue-500 hover:text-blue-700"
           >
             <MessageSquare className="h-4 w-4 mr-1" />
