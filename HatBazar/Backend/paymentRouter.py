@@ -7,7 +7,6 @@ from uuid import uuid4
 from AuthHandler import AuthHandler
 from pydantic import BaseModel
 
-
 payment_router = APIRouter()
 
 sslcz = SSLCOMMERZ({
@@ -21,6 +20,15 @@ class GetPaymentRequest(BaseModel):
     payment_amount: float
 
 payment = Payment()
+
+
+class GetPayment():
+    payment_amount: float
+
+
+@payment_router.post("/makePayment")          #post("/")  eita "/" ei root directory te kaj kore na              
+def makePayment():
+    return {"hello": "world"}
 
 @payment_router.post("/")
 def redirect_to_gateway(paymentReq: GetPaymentRequest, current_user = Depends(AuthHandler.get_current_user)):#paymentAmount: float, current_user = Depends(AuthHandler.get_current_user)):
