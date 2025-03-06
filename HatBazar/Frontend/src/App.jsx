@@ -20,6 +20,8 @@ import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
 import ConfirmOrder from "./pages/marketplace/ConfirmOrder";
 
 
+import Community from ".pages/newcommunity/ForumBrowsePage"
+
 const App = () => {
   return (
     <Router>
@@ -41,6 +43,9 @@ const App = () => {
         {/* <Route path="/payment" element={<PaymentMethod />} /> */}
         {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
         {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
+
+
+        <Route path="/community" element={<Community />} />
       </Routes>
     </Router>
     
