@@ -22,7 +22,7 @@ from marketplaceRouter import marketplace_router
 
 from AuthHandler import AuthHandler
 from Farm import Farm
-from paymentRouter import payment_router
+#from paymentRouter import payment_router
 
 app = FastAPI()
 
@@ -47,7 +47,7 @@ app.include_router(community_router)
 app.include_router(post_router)
 app.include_router(user_router, prefix="", tags=["User"])
 app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
-app.include_router(payment_router, prefix="/payment", tags=["Payment"])
+#app.include_router(payment_router, prefix="/payment", tags=["Payment"])
 
 
 

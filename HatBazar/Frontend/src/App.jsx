@@ -20,7 +20,7 @@ import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
 import ConfirmOrder from "./pages/marketplace/ConfirmOrder";
 
 
-import Community from ".pages/newcommunity/ForumBrowsePage"
+//import Community from ".pages/newcommunity/ForumBrowsePage"
 
 const App = () => {
   return (
