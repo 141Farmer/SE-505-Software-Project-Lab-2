@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
+// Import toast library - you'll need to install it first
+// npm install react-toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ConfirmOrder = () => {
   const [cartItems, setCartItems] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [deliveryCharge, setDeliveryCharge] = useState(0);
   const [totalOrderPrice, setTotalOrderPrice] = useState(0);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Retrieve cart items from local storage
@@ -27,14 +33,31 @@ const ConfirmOrder = () => {
     setTotalPrice(totalProductPrice);
     setDeliveryCharge(deliveryCharge);
     setTotalOrderPrice(totalProductPrice + deliveryCharge);
-  }, []);
+
+    // Check for payment success query parameter
+    const queryParams = new URLSearchParams(location.search);
+    if (queryParams.get('payment') === 'success') {
+      // Show success toast
+      toast.success('Payment successful! Please confirm your order.', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+      });
+      
+      // Show confirmation modal
+      setShowConfirmModal(true);
+    }
+  }, [location]);
 
   const handleConfirmOrder = async () => {
     // Check if the user is logged in
-    const isLoggedIn = localStorage.getItem('token'); // Assuming you store login status in localStorage
+    const isLoggedIn = localStorage.getItem('token'); 
     if (!isLoggedIn) {
       alert("Please log in to proceed with the order.");
-      navigate('/login'); // Redirect to the login page
+      navigate('/login'); 
       return;
     }
   
@@ -46,42 +69,106 @@ const ConfirmOrder = () => {
     }
   
     try {
-      // Make a POST request to the payment endpoint with cartTotalCost in the body
+      // Make a POST request to the payment endpoint
       const response = await fetch('http://127.0.0.1:8000/payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // Include authorization token if needed
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-        body: JSON.stringify({ paymentAmount: cartTotalCost }), // Send paymentAmount in the request body
+        body: JSON.stringify({ paymentAmount: cartTotalCost }),
       });
   
-      // Handle the response
       if (response.redirected) {
-        // If the backend returns a redirect response (e.g., to SSLCommerz), follow it
         window.location.href = response.url;
       } else {
-        // Parse the response JSON if no redirect
         const result = await response.json();
         if (result.success === "true") {
-          // Handle success case (if applicable)
           navigate('/payment-success');
         } else {
-          // Show an error message if the payment request failed
-          alert("Payment request failed. Please try again.");
+          toast.error("Payment request failed. Please try again.");
         }
       }
     } catch (error) {
-      // Handle any network or server errors
       console.error("Error during payment request:", error);
-      alert("An error occurred while processing your payment. Please try again.");
+      toast.error("An error occurred while processing your payment. Please try again.");
     }
+  };
+
+  const handleFinalConfirmation = async () => {
+    // Here you would implement the logic to submit the final order
+    // This could be a separate API call to create the order in your database
+    try {
+      // Example API call to create order
+      const response = await fetch('http://127.0.0.1:8000/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({
+          items: cartItems,
+          totalPrice: totalOrderPrice,
+          deliveryCharge: deliveryCharge
+        }),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        toast.success('Order placed successfully!');
+        // Clear cart
+        localStorage.removeItem('cart');
+        localStorage.removeItem('cartTotalPrice');
+        // Redirect to order confirmation page
+        navigate('/order-confirmation');
+      } else {
+        toast.error(result.message || 'Failed to place order');
+      }
+    } catch (error) {
+      console.error("Error creating order:", error);
+      toast.error("Failed to create order. Please try again.");
+    } finally {
+      setShowConfirmModal(false);
+    }
+  };
+
+  // Modal component
+  const ConfirmationModal = () => {
+    if (!showConfirmModal) return null;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="bg-white rounded-lg p-8 max-w-md w-full">
+          <h2 className="text-2xl font-bold text-green-600 mb-4">Payment Successful!</h2>
+          <p className="mb-6 text-gray-700">Your payment has been processed successfully. Would you like to confirm and place your order now?</p>
+          <div className="flex justify-end space-x-4">
+            <button 
+              onClick={() => setShowConfirmModal(false)}
+              className="px-4 py-2 bg-gray-300 rounded-lg text-gray-700 hover:bg-gray-400"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleFinalConfirmation}
+              className="px-4 py-2 bg-green-600 rounded-lg text-white hover:bg-green-700"
+            >
+              Confirm Order
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   return (
     <div className="min-h-screen bg-green-100">
-      < Navbar/>
+      <Navbar/>
+      {/* Add ToastContainer for notifications */}
+      <ToastContainer />
+      
+      {/* Render the confirmation modal */}
+      <ConfirmationModal />
+      
       <div className="container mx-auto px-4 pt-20 pb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
           Confirm Order
