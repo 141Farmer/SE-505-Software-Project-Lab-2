@@ -71,7 +71,7 @@ def redirect_to_gateway():
         'total_amount': f"{10000}",
         'currency': "BDT",
         'tran_id': f"{tran_id}",
-        'success_url': "http://localhost:5173/confirm-order",  # if transaction is successful, user will be redirected here
+        'success_url': "http://127.0.0.1:8000/payment/successful",  # if transaction is successful, user will be redirected here
         'fail_url': "http://127.0.0.1:8000/payment/failed",  # if transaction is failed, user will be redirected here
         'cancel_url': "http://127.0.0.1:8000/payment/cancelled",  # after user cancels the transaction, will be redirected here
         'emi_option': "0",
@@ -99,15 +99,15 @@ def redirect_to_gateway():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@payment_router.get("/successful")
+@payment_router.post("/successful")
 def payment_successful():
-    return RedirectResponse(url="http://localhost:5173/confirm-order", status_code=307)
+    return RedirectResponse(url="http://localhost:5173/confirm-order", status_code=302)   #without status code = 302 error "method not allowed"
 
 
-@payment_router.get("/failed")
+@payment_router.post("/failed")
 def payment_failed():
     return {"message": "Payment failed"}
 
-@payment_router.get("/cancelled")
+@payment_router.post("/cancelled")
 def payment_cancelled():
     return {"message": "Payment cancelled"}
