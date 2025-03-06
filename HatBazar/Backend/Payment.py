@@ -6,7 +6,7 @@ class Payment:
         self._payment_amount = None
         self._tran_id = None
 
-    def makePayment(self, paymentAmount, tran_id):
+    def initiate(self, paymentAmount, tran_id):
         self._payment_amount = paymentAmount
         self._tran_id = tran_id
 
