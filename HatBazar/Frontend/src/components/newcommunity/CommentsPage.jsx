@@ -61,7 +61,7 @@ const CommentsPage = () => {
           <p className="text-gray-500">No comments yet.</p>
         )}
       </div>
-    <AddCommentButton/>
+     <AddCommentButton postId={id}/>
     </div>
   );
 };

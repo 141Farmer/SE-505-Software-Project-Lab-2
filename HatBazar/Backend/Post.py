@@ -1,5 +1,5 @@
 from Database import Database
-from schemas import PostResponse, CommentResponse
+from schemas import PostResponse, CommentResponse, CommentCreate
 from sqlmodel import select, update
 from models import PostTable, CommentTable, VoteTable
 from typing import List
@@ -47,11 +47,11 @@ class Post:
                               )
                     return commentResponses
 
-          def commentCommunityPost(self, post_id: int, comment: str, currentUser):
+          def commentCommunityPost(self, commentCreate: CommentCreate, currentUser):
                     newComment = CommentTable(
-                              post_id=post_id,
+                              post_id=commentCreate.post_id,
                               user_name=currentUser.username, 
-                              comment_text=comment,
+                              comment_text=commentCreate.comment,
                     )
                     tableRow=Database.write(newComment)
                     if not tableRow:

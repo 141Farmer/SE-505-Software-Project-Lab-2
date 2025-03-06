@@ -84,6 +84,10 @@ class CommentResponse(BaseModel):
     comment_text: str
     commented_time: datetime
 
+class CommentCreate(BaseModel):
+    post_id: int
+    comment: str
+
 class OfferResponse(BaseModel):
     offer_id: int
     user_name: str  

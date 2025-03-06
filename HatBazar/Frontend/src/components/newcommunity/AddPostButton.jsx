@@ -36,8 +36,7 @@ const AddPostButton = () => {
         },
         body: JSON.stringify(hardcodedData),
       });
-      console.log(response);
-
+      
       if (response.ok) {
         window.location.reload(); // Reload the page to reflect the new post
       } else {
