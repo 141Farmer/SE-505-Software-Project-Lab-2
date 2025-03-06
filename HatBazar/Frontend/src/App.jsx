@@ -18,6 +18,9 @@ import PaymentMethod from "./pages/marketplace/Payment";
 import OrderSummary from "./pages/marketplace/OrderSummary";
 // import OrderConfirmation from "./pages/marketplace/OrderConfirmation";
 
+import PostBrowsePage from "./pages/newcommunity/PostBrowsePage";
+import CommentsPage from "./components/newcommunity/CommentsPage";
+
 const App = () => {
   return (
     <Router>
@@ -38,6 +41,11 @@ const App = () => {
         <Route path="/payment" element={<PaymentMethod />} />
         <Route path="/order-summary" element={<OrderSummary />} />
         {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
+
+
+        <Route path="/newcommunity" element={<PostBrowsePage />} />
+        <Route path="/comments/:id" element={<CommentsPage />} />
+
       </Routes>
     </Router>
     
