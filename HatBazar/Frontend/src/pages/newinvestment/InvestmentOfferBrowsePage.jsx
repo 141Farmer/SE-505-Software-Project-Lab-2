@@ -2,11 +2,20 @@ import React, { useEffect, useState } from 'react';
 import { Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
-import InvestmentBidPage from './InvestmentBidPage';
+
+
 
 const InvestmentOfferBrowsePage = () => {
   const [offers, setOffers] = useState([]); // State to store investment offers
   const navigate = useNavigate(); // Hook for navigation
+
+  const handleBidsClick = (offer_id) => {
+    navigate(`/bids/${offer_id}`); // Navigate to the CommentsPage with the post ID
+  };
+
+  const handleAcceptOffer = (offer) => {
+    navigate(`/accept-offer/${offer.offer_id}`, { state: { offer } }); // Pass offer via state
+  };
 
   // Fetch investment offers from the backend
   useEffect(() => {
@@ -40,10 +49,8 @@ const InvestmentOfferBrowsePage = () => {
     return posted.toLocaleDateString();
   };
 
-  // Handle click on the "Details of Investment" button
-  const handleDetailsClick = (offerId) => {
-    navigate(`/investment-details/${offerId}`); // Navigate to the details page
-  };
+  
+  
 
   return (
     <div className="p-4 bg-green-100">
@@ -82,14 +89,14 @@ const InvestmentOfferBrowsePage = () => {
               {/* Details button */}
               <div className="flex justify-end space-x-2">
                     <button
-                              onClick={() => InvestmentBidPage(offer.offer_id)}
+                              onClick={() => handleBidsClick(offer.offer_id)}
                               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                     >
                               Bids of Investment
                     </button>
                     <button
-                              onClick={() => handleAcceptOffer(offer.offer_id)}
-                              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                              onClick={() => handleAcceptOffer(offer)} // Pass offer_id via URL
+                              className="px-4 py-2 bg-green-600 text-white rounded-lg"
                     >
                               Accept Offer
                     </button>

@@ -7,10 +7,13 @@ from datetime import datetime, timezone
 
 class Investment:
 
-          def makeInvestment(self, farmId: int, userId: int, investmentResponse: InvestmentResponse):
+          def makeInvestment(self, offerId: int, investmentResponse: InvestmentResponse, currentUser):
+                    query=select(InvestmentOfferTable).where(InvestmentOfferTable.id==offerId)
+                    offertable=Database.read_one(query)
+
                     newInvestment=InvestmentTable(
-                              farm_id=farmId,
-                              user_id=userId,
+                              farm_id=offertable.farm_id,
+                              user_id=currentUser.id,
                               investment_principle=investmentResponse.principle,
                               investment_rate=investmentResponse.rate,
                               share_dividing_period_month=investmentResponse.share_dividing_month,

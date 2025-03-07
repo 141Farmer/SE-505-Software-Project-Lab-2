@@ -10,7 +10,7 @@ investmentBid=InvestmentBid()
 
 
 
-@router.post("/makebid/")
+@router.post("/makebid/{offerId}")
 def makeInvestmentBid(offerId: int, investBid: BidCreate, currentUser=Depends(AuthHandler.get_current_user)):
         return investmentBid.bidInvestment(offerId, investBid, currentUser)
 

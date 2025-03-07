@@ -22,7 +22,9 @@ import PostBrowsePage from "./pages/newcommunity/PostBrowsePage";
 import CommentsPage from "./components/newcommunity/CommentsPage";
 
 import InvestmentOfferBrowsePage from "./pages/newinvestment/InvestmentOfferBrowsePage";
-import InvestmentBidPage from "./pages/newinvestment/InvestmentBidPage";
+import InvestmentBidPage from "./components/newinvestment/InvestmentBidPage";
+import AcceptOffer from './components/newinvestment/AcceptOffer.jsx'
+
 
 const App = () => {
   return (
@@ -50,7 +52,8 @@ const App = () => {
         <Route path="/comments/:id" element={<CommentsPage />} />
 
         <Route path="/newinvestment" element={<InvestmentOfferBrowsePage />} />
-        <Route path="/investments/:id" element={<InvestmentBidPage />} />
+        <Route path="/bids/:offer_id" element={<InvestmentBidPage />} />
+        <Route path="/accept-offer/:offer_id" element={<AcceptOffer />} />
 
       </Routes>
     </Router>

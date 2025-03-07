@@ -12,7 +12,6 @@ class InvestmentBid:
                     newBid=InvestmentBidTable(
                               investment_offer_id=offerId,
                               user_name=currentUser.username,
-                              bid_creation_time=investBid.bid_creation_time,
                               bid_investment_principle=investBid.bid_investment_principle,
                               bid_investment_rate=investBid.bid_investment_rate,
                               bid_share_dividing_period_month=investBid.bid_share_dividing_period_month,

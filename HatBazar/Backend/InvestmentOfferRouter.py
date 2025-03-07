@@ -17,4 +17,9 @@ def postInvestmentOffer(investmentOffer: OfferCreate, currentUser=Depends(AuthHa
 def acceptInvestmentOffer(offerId: int, currentUser=Depends(AuthHandler.get_current_user)):
         return offer.acceptOffer(offerId, currentUser)
 
+@router.delete("/deleteoffer/{offerId}")
+def deleteInvestmentOffer(offerId: int):
+        return offer.deleteOffer(offerId)
+
+
 

@@ -124,7 +124,6 @@ class BidResponse(BaseModel):
     bid_investment_duration_month: int
 
 class BidCreate(BaseModel):
-    bid_creation_time: datetime 
     bid_investment_principle: float 
     bid_investment_rate: float 
     bid_share_dividing_period_month: int 
