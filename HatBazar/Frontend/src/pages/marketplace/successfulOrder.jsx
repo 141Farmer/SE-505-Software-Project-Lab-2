@@ -1,227 +1,148 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar/Navbar';
-import { FaCheckCircle, FaBox, FaClock, FaTruck, FaArrowRight } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const OrderConfirmation = () => {
-  const [orderDetails, setOrderDetails] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const location = useLocation();
+const PaymentSuccess = () => {
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(true);
+  const [orderNumber, setOrderNumber] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Get order ID from URL parameters if available
-    const queryParams = new URLSearchParams(location.search);
-    const orderId = queryParams.get('orderId');
-
-    const fetchOrderDetails = async () => {
+    const completeOrderProcess = async () => {
       try {
-        if (orderId) {
-          // Fetch order details from the backend
-          const response = await fetch(`http://127.0.0.1:8000/orders/${orderId}`, {
-            headers: {
-              'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            setOrderDetails(data);
-          } else {
-            console.error('Failed to fetch order details');
-            // Use fallback data from localStorage
-            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-            const totalPrice = parseFloat(localStorage.getItem('cartTotalPrice') || '0');
-            
-            setOrderDetails({
-              orderId: orderId || 'Unknown',
-              date: new Date().toLocaleDateString(),
-              items: cartItems,
-              totalAmount: totalPrice,
-              status: 'Processing',
-              estimatedDelivery: getEstimatedDeliveryDate()
-            });
-          }
-        } else {
-          // Use fallback data from localStorage if no orderId
-          const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
-          const totalPrice = parseFloat(localStorage.getItem('cartTotalPrice') || '0');
-          
-          setOrderDetails({
-            orderId: 'Order placed successfully',
-            date: new Date().toLocaleDateString(),
-            items: cartItems,
-            totalAmount: totalPrice,
-            status: 'Processing',
-            estimatedDelivery: getEstimatedDeliveryDate()
-          });
+        // Check if user is authenticated
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('Authentication required. Please log in.');
         }
-      } catch (error) {
-        console.error('Error fetching order details:', error);
-      } finally {
-        setLoading(false);
-        // Clear cart and total price from localStorage after successful order
+
+        // Get necessary data from localStorage
+        const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+        const deliveryAddress = JSON.parse(localStorage.getItem('deliveryAddress'));
+        const cartTotalPrice = localStorage.getItem('cartTotalPrice');
+
+        if (!cartItems.length || !deliveryAddress || !cartTotalPrice) {
+          throw new Error('Missing order information.');
+        }
+
+        // Step 1: Send delivery address to backend
+        const deliveryResponse = await fetch('http://127.0.0.1:8000/delivery', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(deliveryAddress)
+        });
+
+        if (!deliveryResponse.ok) {
+          const deliveryData = await deliveryResponse.json();
+          throw new Error(deliveryData.message || 'Failed to save delivery information');
+        }
+        
+        // Step 2: Create the order
+        const orderResponse = await fetch('http://127.0.0.1:8000/order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            items: cartItems,
+            totalPrice: parseFloat(cartTotalPrice),
+            deliveryAddress: deliveryAddress
+          })
+        });
+
+        if (!orderResponse.ok) {
+          const orderData = await orderResponse.json();
+          throw new Error(orderData.message || 'Failed to create order');
+        }
+
+        const orderResult = await orderResponse.json();
+        setOrderNumber(orderResult.orderNumber || 'N/A');
+
+        // Step 3: Clear local storage
         localStorage.removeItem('cart');
         localStorage.removeItem('cartTotalPrice');
+        localStorage.removeItem('deliveryAddress');
+
+        setIsProcessing(false);
+        toast.success('Your order has been placed successfully!');
+        
+      } catch (error) {
+        console.error('Error completing order:', error);
+        setError(error.message || 'An error occurred while processing your order');
+        setIsProcessing(false);
+        toast.error(error.message || 'An error occurred while processing your order');
       }
     };
 
-    fetchOrderDetails();
-  }, [location]);
+    completeOrderProcess();
+  }, []);
 
-  // Helper function to calculate estimated delivery date (3-5 days from now)
-  const getEstimatedDeliveryDate = () => {
-    const date = new Date();
-    date.setDate(date.getDate() + 3); // Minimum 3 days
-    const maxDate = new Date();
-    maxDate.setDate(maxDate.getDate() + 5); // Maximum 5 days
-    
-    return `${date.toLocaleDateString()} - ${maxDate.toLocaleDateString()}`;
+  const handleGoToMarketplace = () => {
+    navigate('/marketplace');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-green-100 flex justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-green-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-green-100">
+    <div className="min-h-screen bg-green-50">
       <Navbar />
-      <div className="container mx-auto px-4 pt-20 pb-12">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-3xl mx-auto">
-          {/* Order Confirmation Header */}
-          <div className="text-center mb-8">
-            <div className="flex justify-center mb-4">
-              <FaCheckCircle className="text-6xl text-green-600" />
+      <ToastContainer />
+      
+      <div className="container mx-auto px-4 pt-20 pb-8 flex items-center justify-center">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full">
+          {isProcessing ? (
+            <div className="text-center py-10">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-green-500 mx-auto mb-4"></div>
+              <h2 className="text-xl font-semibold text-gray-700">Processing your order...</h2>
+              <p className="text-gray-500 mt-2">Please wait while we confirm your details.</p>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Thank You for Your Order!</h1>
-            <p className="text-gray-600 mt-2">
-              Your order has been placed successfully. We'll send you a confirmation email shortly.
-            </p>
-          </div>
-          
-          {/* Order Details */}
-          <div className="border-t border-b border-gray-200 py-6 mb-6">
-            <div className="flex justify-between mb-4">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">Order Details</h2>
-                <p className="text-gray-600">Order Date: {orderDetails?.date}</p>
+          ) : error ? (
+            <div className="text-center py-6">
+              <div className="bg-red-100 p-4 rounded-lg mb-6">
+                <svg className="w-12 h-12 text-red-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h2 className="text-2xl font-bold text-red-700 mb-2">Payment Error</h2>
+                <p className="text-red-600">{error}</p>
               </div>
-              <div className="text-right">
-                <p className="text-gray-600">Order ID:</p>
-                <p className="font-bold text-gray-900">{orderDetails?.orderId}</p>
+              <button
+                onClick={handleGoToMarketplace}
+                className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Return to Marketplace
+              </button>
+            </div>
+          ) : (
+            <div className="text-center py-6">
+              <div className="bg-green-100 p-6 rounded-full mx-auto w-24 h-24 mb-6 flex items-center justify-center">
+                <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
               </div>
+              <h2 className="text-3xl font-bold text-green-700 mb-4">Payment Successful!</h2>
+              <p className="text-gray-600 mb-2 text-lg">Your order has been placed successfully.</p>
+              {orderNumber && (
+                <p className="text-gray-700 font-medium mb-6">Order Number: <span className="font-bold">{orderNumber}</span></p>
+              )}
+              <p className="text-gray-600 mb-6">Thank you for your purchase. You will receive a confirmation email shortly with your order details.</p>
+              
+              <button
+                onClick={handleGoToMarketplace}
+                className="w-full py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold rounded-lg shadow-md transition-all duration-300"
+              >
+                Continue Shopping
+              </button>
             </div>
-            
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-3">Items Ordered</h3>
-              <div className="space-y-4">
-                {orderDetails?.items?.map((item, index) => (
-                  <div key={index} className="flex items-center justify-between border-b pb-3 last:border-b-0 last:pb-0">
-                    <div className="flex items-center gap-4">
-                      {item.product_image && (
-                        <img 
-                          src={item.product_image} 
-                          alt={item.product_name} 
-                          className="w-16 h-16 object-cover rounded"
-                        />
-                      )}
-                      <div>
-                        <h4 className="font-semibold text-gray-900">{item.product_name}</h4>
-                        <p className="text-sm text-gray-600">{item.package_detail}</p>
-                        <p className="text-sm text-gray-600">Quantity: {item.quantity}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-green-600">
-                        {(item.unit_price * item.quantity).toFixed(2)} tk
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <h3 className="text-xl font-bold text-gray-900">Total Amount</h3>
-              <span className="text-2xl font-bold text-green-600">
-                {orderDetails?.totalAmount?.toFixed(2)} tk
-              </span>
-            </div>
-          </div>
-          
-          {/* Order Progress */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Order Progress</h3>
-            <div className="relative">
-              <div className="absolute left-4 top-0 h-full w-0.5 bg-green-300"></div>
-              <div className="space-y-6">
-                <div className="flex items-center">
-                  <div className="z-10 flex items-center justify-center w-8 h-8 bg-green-600 rounded-full">
-                    <FaCheckCircle className="text-white text-sm" />
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900">Order Placed</h4>
-                    <p className="text-sm text-gray-600">{orderDetails?.date}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="z-10 flex items-center justify-center w-8 h-8 bg-green-500 rounded-full">
-                    <FaBox className="text-white text-sm" />
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900">Order Processing</h4>
-                    <p className="text-sm text-gray-600">We're preparing your order</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="z-10 flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
-                    <FaClock className="text-gray-600 text-sm" />
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900">Preparing for Shipment</h4>
-                    <p className="text-sm text-gray-600">Your order will be shipped soon</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-center">
-                  <div className="z-10 flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full">
-                    <FaTruck className="text-gray-600 text-sm" />
-                  </div>
-                  <div className="ml-4">
-                    <h4 className="font-semibold text-gray-900">Out for Delivery</h4>
-                    <p className="text-sm text-gray-600">Estimated delivery: {orderDetails?.estimatedDelivery}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Link 
-              to="/orders"
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-200 ease-in-out"
-            >
-              Track Your Order
-              <FaArrowRight className="text-sm" />
-            </Link>
-            
-            <Link
-              to="/"
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-white border border-green-600 text-green-600 font-semibold rounded-lg hover:bg-green-50 transition-all duration-200 ease-in-out"
-            >
-              Continue Shopping
-            </Link>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
-export default OrderConfirmation;
+export default PaymentSuccess;

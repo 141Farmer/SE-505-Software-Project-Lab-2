@@ -18,6 +18,7 @@ import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
 // import OrderSummary from "./pages/marketplace/OrderSummary";
 // import OrderConfirmation from "./pages/marketplace/OrderConfirmation";
 import ConfirmOrder from "./pages/marketplace/ConfirmOrder";
+import PaymentSuccess from "./pages/marketplace/successfulOrder";
 
 
 const App = () => {
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="/delivery-address" element={<DeliveryAddress />} />
         <Route path="/confirm-order" element={<ConfirmOrder />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
         {/* <Route path="/payment" element={<PaymentMethod />} /> */}
         {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
         {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
