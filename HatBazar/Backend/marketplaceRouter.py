@@ -12,7 +12,7 @@ from fastapi import HTTPException
 from ImageHandler import ImageHandler
 
 
-marketplace_router = APIRouter()
+marketplace_router = APIRouter(prefix="/marketplace", tags=["Market"])
 
 
 market = Marketplace()

@@ -5,7 +5,7 @@ from AuthHandler import AuthHandler
 from pydantic import BaseModel
 
 
-payment_router = APIRouter()
+payment_router = APIRouter(prefix="/payment", tags=["Payment"])
 
 
 class GetPayment(BaseModel):

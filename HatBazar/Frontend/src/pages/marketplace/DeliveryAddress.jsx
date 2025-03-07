@@ -13,10 +13,11 @@ const DeliveryAddress = () => {
   useEffect(() => {
     const savedAddress = localStorage.getItem('deliveryAddress');
     if (savedAddress) {
-      setBuildingHouseNo(savedAddress.buildingHouseNo || '');
-      setStreet(savedAddress.street || '');
-      setArea(savedAddress.area || '');
-      setCity(savedAddress.city || '');
+      const [building, streetAddr, areaAddr, cityAddr] = savedAddress.split(',');
+      setBuildingHouseNo(building.trim());
+      setStreet(streetAddr.trim());
+      setArea(areaAddr.trim());
+      setCity(cityAddr.trim());
     }
   }, []);
 
@@ -29,7 +30,6 @@ const DeliveryAddress = () => {
     }
 
     const addressString = `${buildingHouseNo}, ${street}, ${area}, ${city}`;
-
     localStorage.setItem('deliveryAddress', addressString);
 
     navigate("/confirm-order");

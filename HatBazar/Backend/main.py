@@ -47,9 +47,9 @@ app.include_router(offer_router)
 app.include_router(bid_router)
 app.include_router(community_router)
 app.include_router(post_router)
-app.include_router(user_router, prefix="", tags=["User"])
-app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
-app.include_router(payment_router, prefix="/payment", tags=["Payment"])
+app.include_router(user_router)
+app.include_router(marketplace_router)
+app.include_router(payment_router)
 
 
 user=User()

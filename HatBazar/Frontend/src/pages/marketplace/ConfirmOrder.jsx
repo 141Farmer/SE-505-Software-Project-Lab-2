@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../../components/Navbar/Navbar';
 
 const ConfirmOrder = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -75,6 +76,7 @@ const ConfirmOrder = () => {
 
   return (
     <div className="min-h-screen bg-green-100">
+      <Navbar/>
       <div className="container mx-auto px-4 pt-20 pb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-2">
           Confirm Order
