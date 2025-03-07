@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine, Session, select
 from dotenv import load_dotenv
 import os
 
@@ -63,21 +63,4 @@ class Database:
 
     @classmethod
     def update(cls, tableElement):
-        try:
-            with cls.get_session() as session:
-                # Fetch the existing record
-                existing_record = session.get(tableElement.__class__, tableElement.id)
-                if not existing_record:
-                    raise ValueError(f"Record with id {tableElement.id} not found in {tableElement.__class__.__name__}")
-
-                # Update the fields of the existing record
-                for key, value in tableElement.dict().items():
-                    if key != "id":  # Avoid updating the primary key
-                        setattr(existing_record, key, value)
-
-                session.commit()
-                session.refresh(existing_record)
-                return existing_record
-        except Exception as e:
-            print(f"Error updating in database: {e}")
-            return None
+        cls.write(tableElement=tableElement)

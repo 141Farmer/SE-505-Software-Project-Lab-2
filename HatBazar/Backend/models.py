@@ -110,3 +110,21 @@ class InvestmentTable(SQLModel, table=True):
     transaction_id: str | None
 
 
+class PaymentTable(SQLModel, table=True):
+    ___tablename__ = "paymenttble"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(foreign_key="user.username")
+    amount: float
+    tran_id : str 
+    indicator: str
+    payment_time: datetime = Field(default=datetime.now(timezone.utc))
+
+
+class AccountTable(SQLModel, table=True):
+    __tablename__ = "account"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username : str = Field(foreign_key="user.username")
+    balance_sales: float | None = Field(default=0)
+    balance_investment: float | None = Field(default=0)
+    total_balance: float | None = Field(default=0)
+    
