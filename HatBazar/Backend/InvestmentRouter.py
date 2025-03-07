@@ -7,7 +7,7 @@ from schemas import OfferResponse, BidResponse, InvestmentResponse
 router = APIRouter(prefix='', tags=['Investment'])
 investment=Investment()
 
-@router.post("/makeoffer/")
+@router.post("/makeinvestment/")
 def makeInvestmentOffer(farm_id: int, user_id: int, investmentResponse: InvestmentResponse):
         return investment.makeOffer(farm_id, user_id, investmentResponse)
 

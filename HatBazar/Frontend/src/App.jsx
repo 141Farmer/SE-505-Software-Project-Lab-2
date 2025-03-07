@@ -21,6 +21,9 @@ import OrderSummary from "./pages/marketplace/OrderSummary";
 import PostBrowsePage from "./pages/newcommunity/PostBrowsePage";
 import CommentsPage from "./components/newcommunity/CommentsPage";
 
+import InvestmentOfferBrowsePage from "./pages/newinvestment/InvestmentOfferBrowsePage";
+import InvestmentBidPage from "./pages/newinvestment/InvestmentBidPage";
+
 const App = () => {
   return (
     <Router>
@@ -32,9 +35,9 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/marketplace" element={<MarketPlace />} />
         <Route path="/community" element={<Forum />} />
-        <Route path="/invest" element={<InvestmentPage />} />
+        { /*<Route path="/invest" element={<InvestmentPage />} />
         <Route path="/investcreate" element={<InvestmentCreatePage />} />
-        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />
+        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />*/}
         <Route path="/contract" element={<ContractSection />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/delivery-address" element={<DeliveryAddress />} />
@@ -45,6 +48,9 @@ const App = () => {
 
         <Route path="/newcommunity" element={<PostBrowsePage />} />
         <Route path="/comments/:id" element={<CommentsPage />} />
+
+        <Route path="/newinvestment" element={<InvestmentOfferBrowsePage />} />
+        <Route path="/investments/:id" element={<InvestmentBidPage />} />
 
       </Routes>
     </Router>

@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 class Investment:
 
-          def makeOffer(self, farmId: int, userId: int, investmentResponse: InvestmentResponse):
+          def makeInvestment(self, farmId: int, userId: int, investmentResponse: InvestmentResponse):
                     newInvestment=InvestmentTable(
                               farm_id=farmId,
                               user_id=userId,
@@ -15,7 +15,7 @@ class Investment:
                               investment_rate=investmentResponse.rate,
                               share_dividing_period_month=investmentResponse.share_dividing_month,
                               investment_duration_month=investmentResponse.duration_month,
-                              transaction_id=''
+                              transaction_id=f''
                     )
 
                     tableRow=Database.write(newInvestment)
