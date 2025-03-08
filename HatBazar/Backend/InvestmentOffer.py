@@ -18,7 +18,7 @@ class Offer:
                               farm_id=farmId,
                               user_name=currentUser.username,
                               offer_description=investmentOffer.offer_description,
-                              offer_creation_time=investmentOffer.offer_creation_time,
+                              
                               offer_investment_principle=investmentOffer.offer_investment_principle,
                               offer_investment_rate=investmentOffer.offer_investment_rate,
                               offer_share_dividing_period_month=investmentOffer.offer_share_dividing_period_month,
