@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from typing import List, Optional
 from sqlmodel import select
 from AuthHandler import AuthHandler
@@ -7,6 +7,7 @@ from Database import Database
 from models import OrderTable, UserTable, ProductTable, PaymentTable, OrderItemTable, DeliveryTable
 from OrderItem import OrderItem
 from Order import Order
+from Notification import Notification
 
 order_router = APIRouter(prefix='/order', tags=['Order'])
 
@@ -22,14 +23,15 @@ class OrderRequest(BaseModel):
     products: List[Product]
 
 @order_router.post("/")
-async def receive_order(order: OrderRequest, current_user = Depends(AuthHandler.get_current_user)):
+async def receive_order(order: OrderRequest, background_tasks: BackgroundTasks, current_user = Depends(AuthHandler.get_current_user)):
     
     order_items  = [(product.product_id, product.quantity) for product in order.products] 
     delivery_adddress = order.delivery_address
     tran_id = order.tran_id
 
     query = select(UserTable).where(UserTable.username == current_user.username)
-    user_id = Database.read_one(query).id
+    user_db = Database.read_one(query)
+    user_id = user_db.id
 
     payment_id_query = select(PaymentTable).where(PaymentTable.tran_id == tran_id)
     payment_id = Database.read_one(query=payment_id_query).id
@@ -43,6 +45,16 @@ async def receive_order(order: OrderRequest, current_user = Depends(AuthHandler.
     order_db_entry = Database.write(order_db)
     order_object._order_id = order_db_entry.id
 
+    content = '''We’re thrilled to inform you that your order has been successfully placed! 
+Thank you for choosing HATBAZAR. We’re committed to providing you with the best organic farming products and services.
+If you have any questions or need assistance, feel free to contact us at support@hatbazar.com.
+Happy farming! 🌱
+'''
+
+
+    notification  = Notification("🎉 Order Successful! Thank You for Shopping with HATBAZAR 🎉", content)
+    notification.sendNotification(background_tasks, user_db.email, "🎉 Order Successful!")
+    notification.storeNotification(user_db.email)
 
     for orderItem in order_object._orderItems:
         orderItem_db = OrderItemTable(
@@ -57,7 +69,7 @@ async def receive_order(order: OrderRequest, current_user = Depends(AuthHandler.
         orderItem.manageDeliveryDetail(delivery_adddress)
 
         orderItem.updateProduct()
-        orderItem.updateFarmAccount(payment_id)
+        orderItem.updateFarmAccount(payment_id, background_tasks)
 
 
     print(order_items)

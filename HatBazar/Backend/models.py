@@ -155,3 +155,12 @@ class DeliveryTable(SQLModel, table=True):
     farm_address: str
     delivery_address: str
     delivery_status: str | None
+
+
+class NotificationTable(SQLModel, table= True):
+    __tablename__ = 'notification'
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    title: str
+    content: str
+    created_time: datetime = Field(default=datetime.now(timezone.utc))
