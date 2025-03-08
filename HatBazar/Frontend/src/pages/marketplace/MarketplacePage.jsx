@@ -3,6 +3,7 @@ import { Star, X, Package, User, Truck, Plus } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast } from "react-hot-toast";
 import FloatingCartButton from '../../components/Marketplace/FloatingCartButton';
+import Footer from '../../components/Footer';
 
 const MarketPlace = () => {
   const [products, setProducts] = useState([]);
@@ -380,7 +381,7 @@ const MarketPlace = () => {
 
       <FloatingCartButton cartItems={cartItems} />
 
-
+      <Footer/>
     </div>
   );
 };

@@ -71,7 +71,7 @@ const LandingPage = () => {
         <Features featureData={featureData} />
         <ContractSection/>
       </main>
-      <Stats statsData={statsData} />
+      {/* <Stats statsData={statsData} /> */}
       <Footer />
     </div>
   );

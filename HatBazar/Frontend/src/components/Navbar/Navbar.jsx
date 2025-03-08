@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Leaf, Menu, X } from 'lucide-react';
+import { Leaf, Menu, X, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import DesktopMenu from './DesktopMenu';
 import MobileMenu from './MobileMenu';
@@ -12,7 +12,7 @@ const Navbar = () => {
     { name: 'Market', href: '/marketplace' },
     { name: 'Invest', href: '/invest' },
     { name: 'Community', href: '/community' },
-    { name: 'Contract', href: '/contract' },
+    // { name: 'Contract', href: '/contract' },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -29,8 +29,8 @@ const Navbar = () => {
           onClick={handleLogoClick}
           className="flex items-center gap-2 focus:outline-none"
         >
-          <Leaf className="w-8 h-8 text-green-700" />
-          <span className="text-2xl font-bold text-green-800">Green Harvest</span>
+          <ShoppingBag className="w-8 h-8 text-green-700" />
+          <span className="text-2xl font-bold text-green-800">HATBAZAR</span>
         </button>
 
         {/* Desktop Menu */}
