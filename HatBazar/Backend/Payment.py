@@ -17,15 +17,19 @@ class Payment:
             'issandbox': True
         })
 
-    def makePayment(self, payment_amount):
+    def makePayment(self, payment_amount, indicator):
         print(payment_amount)
         self._tran_id = uuid4()
+
+        success_url = "http://127.0.0.1:8000/payment/successful" if indicator == "sales" else "http://127.0.0.1:8000/payment/invest-successful"
+        failed_url = "http://127.0.0.1:8000/payment/failed" if indicator == "investment" else "http://127.0.0.1:8000/payment/invest-failed"
+
         data = {
             'total_amount': f"{payment_amount}",
             'currency': "BDT",
             'tran_id': f"{self._tran_id}",
-            'success_url': "http://127.0.0.1:8000/payment/successful",  # if transaction is successful, user will be redirected here
-            'fail_url': "http://127.0.0.1:8000/payment/failed",  # if transaction is failed, user will be redirected here
+            'success_url': success_url,  # if transaction is successful, user will be redirected here
+            'fail_url': failed_url,  # if transaction is failed, user will be redirected here
             'cancel_url': "http://127.0.0.1:8000/payment/cancelled",  # after user cancels the transaction, will be redirected here
             'emi_option': "0",
             'cus_name': "test",
@@ -43,7 +47,7 @@ class Payment:
         }
 
         response = self.__sslcz.createSession(data)
-        
+
         try:
             if response['status'] == 'SUCCESS':
                 return {"url": response["GatewayPageURL"],

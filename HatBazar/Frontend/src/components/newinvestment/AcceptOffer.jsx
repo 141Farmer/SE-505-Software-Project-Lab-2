@@ -10,6 +10,54 @@ const dummyPayment = async () => {
   });
 };
 
+
+const handlePayment = async (offer) => {
+  // setIsProcessing(true);
+  const token = localStorage.getItem('token');
+  const investmentPrinciple = offer.offer_investment_principle;
+  const indicator = 'investment'; 
+    if (!investmentPrinciple) {
+      alert("Your cart is empty. Please add items to your cart.");
+      return;
+    }
+  
+    try {
+  
+      const redirectResponse = await fetch(`http://127.0.0.1:8000/payment/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ 
+          payment_amount: parseFloat(investmentPrinciple),
+          indicator : indicator, 
+        }),
+      });
+  
+      if (!redirectResponse.ok) {
+        throw new Error(`Redirect request failed: ${redirectResponse.statusText}`);
+      }
+  
+      if (!redirectResponse.ok) {
+        throw new Error(`Redirect request failed: ${redirectResponse.statusText}`);
+      }
+
+      const redirectData = await redirectResponse.json();
+      
+      if (redirectData.url && redirectData.tran_id) {  // UPDATED: Check for both URL & tran_id
+        localStorage.setItem("tran_id", redirectData.tran_id);  // UPDATED: Store tran_id for later use
+        window.location.href = redirectData.url;
+      } else {
+        throw new Error("No redirect URL received");
+      }
+
+    } catch (error) {
+      console.error("Error during payment processing:", error);
+      alert(`Payment processing error: ${error.message}`);
+    }
+};
+
 // Function to delete the offer
 const deleteOffer = async (offerId) => {
   try {
@@ -74,11 +122,11 @@ const AcceptOffer = () => {
   console.log(offer_id);
   const handleAcceptOffer = async () => {
     // Step 1: Simulate payment
-    const paymentSuccess = await dummyPayment();
-    if (!paymentSuccess) {
-      alert('Payment failed. Please try again.');
-      return;
-    }
+    // const paymentSuccess = await dummyPayment();
+    // if (!paymentSuccess) {
+    //   alert('Payment failed. Please try again.');
+    //   return;
+    // }
 
     // Step 2: Delete the offe
 
@@ -97,12 +145,13 @@ const AcceptOffer = () => {
     if (investmentSuccess) {
       alert('Investment created successfully!');
       const deleteSuccess = await deleteOffer(offer_id);
+      handlePayment(offer);
+
     if (!deleteSuccess) {
       alert('Failed to delete the offer. Please try again.');
       return;
     }
-
-      navigate('/newinvestment'); // Navigate to the home page or another appropriate page
+      // navigate('/'); // Navigate to the home page or another appropriate page
     } else {
       alert('Failed to create investment. Please try again.');
     }
@@ -116,7 +165,7 @@ const AcceptOffer = () => {
       <div className="bg-white rounded-md border border-gray-300 p-4">
         <h2 className="text-xl font-bold text-gray-900 mb-2">Offer Details</h2>
         <div className="text-gray-800">
-          <p><strong>Investment Principle:</strong> ${offer.offer_investment_principle}</p>
+        <p><strong>Investment Principle:</strong> ${offer.offer_investment_principle}</p>
           <p><strong>Investment Rate:</strong> {offer.offer_investment_rate}%</p>
           <p><strong>Share Dividing Period:</strong> {offer.offer_share_dividing_period_month} months</p>
           <p><strong>Investment Duration:</strong> {offer.offer_investment_duration_month} months</p>

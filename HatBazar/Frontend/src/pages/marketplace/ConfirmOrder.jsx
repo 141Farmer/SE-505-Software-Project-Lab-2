@@ -39,6 +39,7 @@ const ConfirmOrder = () => {
   
     // Retrieve cart total
     const cartTotalCost = localStorage.getItem('cartTotalPrice');
+    const indicator = 'sales'; 
     if (!cartTotalCost) {
       alert("Your cart is empty. Please add items to your cart.");
       return;
@@ -52,7 +53,10 @@ const ConfirmOrder = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ payment_amount: parseFloat(cartTotalCost) }),
+        body: JSON.stringify({ 
+          payment_amount: parseFloat(cartTotalCost),
+          indicator : indicator, 
+        }),
       });
   
       if (!redirectResponse.ok) {

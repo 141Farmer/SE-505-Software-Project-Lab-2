@@ -1,9 +1,11 @@
 from Database import Database
 from schemas import OfferResponse, BidResponse, InvestmentResponse
 from sqlmodel import select, update
-from models import InvestmentOfferTable, InvestmentBidTable, InvestmentTable
+from models import InvestmentOfferTable, InvestmentBidTable, InvestmentTable, AccountTable
 from typing import List
 from datetime import datetime, timezone
+from models import FarmTable
+
 
 class Investment:
 
@@ -23,6 +25,18 @@ class Investment:
                     )
 
                     tableRow=Database.write(newInvestment)
+                    farm_db = Database.read_one(select(FarmTable).where(FarmTable.id ==offertable.farm_id))
+                    old_account = Database.read_one(select(AccountTable).where(AccountTable.username == farm_db.username))
+                    if not old_account:
+                        db_new_account = AccountTable(username=farm_db.username, balance_investment=investmentResponse.principle, total_balance=investmentResponse.principle)
+                        Database.write(db_new_account)
+                        return {"message": "Payment infos stored successfully."}
+
+                    
+                    old_account.balance_investment += investmentResponse.principle
+                    old_account.total_balance += investmentResponse.principle
+                    Database.update(old_account)   
+                    
 
                     if not tableRow:
                               raise HTTPException(status_code=500, detail="Error investment creating")

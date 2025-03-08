@@ -44,6 +44,10 @@ const AddBidButton = ({ offerId }) => {
       } else {
         console.error('Failed to submit bid');
       }
+
+      
+
+
     } catch (error) {
       console.error('Error submitting bid:', error);
     }
