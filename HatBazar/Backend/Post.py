@@ -27,12 +27,11 @@ class Post:
 
                     if not tableRow:
                               raise HTTPException(status_code=500, detail="Error vote adding")
-                    with Database.get_session() as session:
-                              upvote_query=select(func.count()).where(VoteTable.post_id == voteCreate.post_id, VoteTable.value == 1)
-                              upvoteCount = session.exec(upvote_query).first() or 0
-        
-                              downvote_query = select(func.count()).where(VoteTable.post_id == voteCreate.post_id, VoteTable.value == -1)
-                              downvoteCount = session.exec(downvote_query).first() or 0
+                    
+                    upvoteCount=Database.get_upvote_count(voteCreate.post_id)
+                    downvoteCount=Database.get_downvote_count(voteCreate.post_id)
+                    
+                    
                     return VoteCount(
                               upvote_count=upvoteCount,
                               downvote_count=downvoteCount

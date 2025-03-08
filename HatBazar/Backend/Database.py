@@ -1,6 +1,8 @@
-from sqlmodel import SQLModel, create_engine, Session
+from sqlmodel import SQLModel, create_engine, Session, select
 from dotenv import load_dotenv
 import os
+from models import VoteTable
+from sqlalchemy import func
 
 load_dotenv()
 
@@ -80,4 +82,28 @@ class Database:
                 return existing_record
         except Exception as e:
             print(f"Error updating in database: {e}")
+            return None
+
+    @classmethod
+    def get_upvote_count(cls, postId):
+        try:
+            with cls.get_session() as session:
+                upvote_query=select(func.count()).where(VoteTable.post_id == postId, VoteTable.value == 1)
+                upvoteCount = session.exec(upvote_query).first() or 0
+        
+                return upvoteCount
+        except Exception as e:
+            print(f"Error fetching upvote count: {e}")
+            return None
+
+    @classmethod
+    def get_downvote_count(cls, postId):
+        try:
+            with cls.get_session() as session:
+                downvote_query=select(func.count()).where(VoteTable.post_id == postId, VoteTable.value == -1)
+                downvoteCount = session.exec(downvote_query).first() or 0
+        
+                return downvoteCount
+        except Exception as e:
+            print(f"Error fetching downvote count: {e}")
             return None

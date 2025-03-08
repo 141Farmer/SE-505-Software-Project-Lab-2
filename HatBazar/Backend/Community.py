@@ -34,12 +34,8 @@ class Community:
         if not post:
             raise HTTPException(status_code=404, detail="No post found")
 
-        with Database.get_session() as session:
-                upvote_query=select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == 1)
-                upvoteCount = session.exec(upvote_query).first() or 0
-        
-                downvote_query = select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == -1)
-                downvoteCount = session.exec(downvote_query).first() or 0
+        upvoteCount=Database.get_upvote_count(post_id)
+        downvoteCount=Database.get_downvote_count(post_id)
 
         postResponse=PostResponse(
                     post_id=post.id,
@@ -62,13 +58,10 @@ class Community:
         postResponses=[]
 
         for post in posts:
-            with Database.get_session() as session:
-                upvote_query=select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == 1)
-                upvoteCount = session.exec(upvote_query).first() or 0
-        
-                downvote_query = select(func.count()).where(VoteTable.post_id == post.id, VoteTable.value == -1)
-                downvoteCount = session.exec(downvote_query).first() or 0
-
+            
+            upvoteCount=Database.get_upvote_count(post.id)
+            downvoteCount=Database.get_downvote_count(post.id)
+            
             postResponses.append(
                 PostResponse(
                     post_id=post.id,
