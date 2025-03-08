@@ -5,10 +5,8 @@ import { LoginPage } from "./pages/authentication/LoginPage";
 import RegistrationPage from "./pages/authentication/RegistrationPage";
 import Dashboard from "./pages/user/DashboardPage";
 import MarketPlace from "./pages/marketplace/MarketplacePage";
-import InvestmentPage from "./pages/investment/investmentPage";
-import InvestmentCreatePage from "./pages/investment/InvestmentCreatePage";
-import InvestmentBrowsePage from "./pages/investment/InvestmentBrowsePage";
-import Forum from "./pages/community/Forum";
+
+
 import ContractSection from "./components/ContractSection";
 import { Toaster } from "react-hot-toast";
 import Cart from "./pages/marketplace/cart";
