@@ -1,5 +1,3 @@
-
-
 class Order:
     def __init__(self):
         self._order_id = None

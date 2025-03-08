@@ -10,11 +10,6 @@ class Delivery:
         self._delivery_status = delivery_status
 
 
-
-
-
-
-
     def confirmDelivery(self, orderItem_id):
         delivery_db = DeliveryTable(
             order_item_id=orderItem_id,
@@ -26,9 +21,6 @@ class Delivery:
         self._deliveryID = delivery_db_entry.id
         return delivery_db_entry
         
-
-
-
 
     def trackDelivery(self):
         pass
