@@ -40,7 +40,7 @@ const BidModal = ({ isOpen, onClose, onSubmit }) => {
         <form onSubmit={handleSubmit}>
           {/* Investment Principle */}
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-2">Investment Principle ($)</label>
+            <label className="block text-sm font-medium mb-2">Investment Principle (BDT)</label>
             <input
               type="number"
               name="bid_investment_principle"

@@ -102,7 +102,7 @@ const AcceptOffer = () => {
       return;
     }
 
-      navigate('/'); // Navigate to the home page or another appropriate page
+      navigate('/newinvestment'); // Navigate to the home page or another appropriate page
     } else {
       alert('Failed to create investment. Please try again.');
     }

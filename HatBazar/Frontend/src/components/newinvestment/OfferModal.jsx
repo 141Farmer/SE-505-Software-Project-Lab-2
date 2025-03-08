@@ -60,7 +60,7 @@ const OfferModal = ({ isOpen, onClose, onSubmit }) => {
           {/* Investment Principle */}
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
-              Investment Principle ($)
+              Investment Principle (BDT)
             </label>
             <input
               type="number"

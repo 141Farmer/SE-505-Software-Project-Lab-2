@@ -93,6 +93,8 @@ const InvestmentOfferBrowsePage = () => {
       if (response.ok) {
         const newOffer = await response.json();
         setOffers((prev) => [...prev, newOffer]); // Update state with the new offer
+        setIsAddModalOpen(false); // Close the modal
+        window.location.reload();
       } else {
         console.error("Failed to add offer");
       }
@@ -145,15 +147,15 @@ const InvestmentOfferBrowsePage = () => {
                 </div>
 
                 {/* Offer Description */}
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <h5 className="text-2xl font-400 text-gray-900 mb-4">
                   {offer.offer_description}
-                </h3>
+                </h5>
 
                 {/* Offer Details */}
                 <div className="text-gray-800 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
                   <p className="mb-2">
-                    <strong>Investment Principle:</strong> $
-                    {offer.offer_investment_principle}
+                    <strong>Investment Principle:</strong> 
+                    {offer.offer_investment_principle} BDT
                   </p>
                   <p className="mb-2">
                     <strong>Investment Rate:</strong> {offer.offer_investment_rate}%
