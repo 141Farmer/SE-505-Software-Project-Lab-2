@@ -56,7 +56,7 @@ class GetProductResponse(BaseModel):
     product_id: int
     product_name: str
     package_detail: str
-    product_image: str
+    product_image: str  |None
     rating: float | None
     unit_price: float
     stock_amount: int
@@ -135,4 +135,4 @@ class InvestmentResponse(BaseModel):
     share_dividing_month: int 
     duration_month: int 
 
-    
+ 

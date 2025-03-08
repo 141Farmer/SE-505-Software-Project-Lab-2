@@ -110,3 +110,48 @@ class InvestmentTable(SQLModel, table=True):
     transaction_id: str | None
 
 
+class PaymentTable(SQLModel, table=True):
+    ___tablename__ = "paymenttable"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username: str = Field(foreign_key="user.username")
+    amount: float
+    tran_id : str 
+    indicator: str | None
+    payment_time: datetime = Field(default=datetime.now(timezone.utc))
+
+
+class AccountTable(SQLModel, table=True):
+    __tablename__ = "account"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    username : str = Field(foreign_key="user.username")
+    balance_sales: float | None = Field(default=0)
+    balance_investment: float | None = Field(default=0)
+    total_balance: float | None = Field(default=0)
+    
+    
+class OrderTable(SQLModel, table= True):
+    __tablename__ = "order"
+    id: Optional[int] = Field(default=None, primary_key=True)
+    user_id: int = Field(foreign_key="user.id")
+    payment_id: int = Field(foreign_key="paymenttable.id")
+    total_cost: float
+    order_date:datetime = Field(default=datetime.now(timezone.utc))
+
+
+class OrderItemTable(SQLModel, table= True):
+    __tablename__= "orderitem"
+    id : Optional[int] = Field(default=None, primary_key=True)
+    order_id: int = Field(foreign_key="order.id")
+    product_id: int = Field(foreign_key="product.id")
+    product_quantity: int
+    item_price: float
+
+
+
+class DeliveryTable(SQLModel, table=True):
+    __tablename__ = "delivery"
+    id : Optional[int] = Field(default=None, primary_key=True)
+    order_item_id: int = Field(foreign_key="orderitem.id")
+    farm_address: str
+    delivery_address: str
+    delivery_status: str | None

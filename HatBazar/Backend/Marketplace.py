@@ -1,5 +1,5 @@
 from sqlmodel import select
-from models import ProductTable, FarmTable
+from models import ProductTable, FarmTable, UserTable
 from Product import Product
 from Database import Database
 from fastapi import HTTPException
@@ -44,8 +44,11 @@ class Marketplace:
         for product in productList:
             farm_query = select(FarmTable).where(FarmTable.id == product.farm_id)
             farm = Database.read_one(query=farm_query)
-            farm_name = farm.username if farm else "Unknown"
             farm_addresss = farm.address if farm else "Unknown"
+
+            query = select(UserTable).where(UserTable.username == farm.username)
+            farm_user_db = Database.read_one(query=query)
+            farm_name = farm_user_db.fullname if farm_user_db else "unknown"
             productResponseList.append(GetProductResponse(
                 product_id=product.id,
                 product_name=product.product_name,
