@@ -1,20 +1,21 @@
 from Database import Database
-from schemas import PostResponse, CommentResponse
+from schemas import PostResponse, CommentResponse, CommentCreate, VoteCreate, VoteCount
 from sqlmodel import select, update
+from sqlalchemy import func
 from models import PostTable, CommentTable, VoteTable
 from typing import List
 from datetime import datetime, timezone
 from fastapi import HTTPException
 
 class Post:
-          def votePost(self, postId, voteValue, currentUser):
-                    query=select(VoteTable).where((VoteTable.post_id == postId) & (VoteTable.user_name == currentUser.username))
+          def votePost(self, voteCreate: VoteCreate, currentUser):
+                    query=select(VoteTable).where((VoteTable.post_id == voteCreate.post_id) & (VoteTable.user_name == currentUser.username))
                     vote = Database.read_one(query)
 
                     newVote=VoteTable(
-                              post_id=postId,
+                              post_id=voteCreate.post_id,
                               user_name=currentUser.username,
-                              value=voteValue
+                              value=voteCreate.voteValue
                     )
 
 
@@ -26,7 +27,16 @@ class Post:
 
                     if not tableRow:
                               raise HTTPException(status_code=500, detail="Error vote adding")
-                    return {'message': 'Vote added successfully'}
+                    
+                    upvoteCount=Database.get_upvote_count(voteCreate.post_id)
+                    downvoteCount=Database.get_downvote_count(voteCreate.post_id)
+                    
+                    
+                    return VoteCount(
+                              upvote_count=upvoteCount,
+                              downvote_count=downvoteCount
+                    )
+                    
 
           def getComment(self, post_id: int) -> List[CommentResponse]:
                     query = select(CommentTable).where(CommentTable.post_id==post_id)
@@ -47,11 +57,11 @@ class Post:
                               )
                     return commentResponses
 
-          def commentCommunityPost(self, post_id: int, comment: str, currentUser):
+          def commentCommunityPost(self, commentCreate: CommentCreate, currentUser):
                     newComment = CommentTable(
-                              post_id=post_id,
+                              post_id=commentCreate.post_id,
                               user_name=currentUser.username, 
-                              comment_text=comment,
+                              comment_text=commentCreate.comment,
                     )
                     tableRow=Database.write(newComment)
                     if not tableRow:

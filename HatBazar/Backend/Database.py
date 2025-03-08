@@ -1,6 +1,8 @@
 from sqlmodel import SQLModel, create_engine, Session, select
 from dotenv import load_dotenv
 import os
+from models import VoteTable
+from sqlalchemy import func
 
 load_dotenv()
 
@@ -63,4 +65,46 @@ class Database:
 
     @classmethod
     def update(cls, tableElement):
-        cls.write(tableElement=tableElement)
+        try:
+            with cls.get_session() as session:
+                # Fetch the existing record
+                existing_record = session.get(tableElement.__class__, tableElement.id)
+                if not existing_record:
+                    raise ValueError(f"Record with id {tableElement.id} not found in {tableElement.__class__.__name__}")
+
+                # Update the fields of the existing record
+                for key, value in tableElement.dict().items():
+                    if key != "id":  # Avoid updating the primary key
+                        setattr(existing_record, key, value)
+
+                session.commit()
+                session.refresh(existing_record)
+                return existing_record
+        except Exception as e:
+            print(f"Error updating in database: {e}")
+            return None
+
+    @classmethod
+    def get_upvote_count(cls, postId):
+        try:
+            with cls.get_session() as session:
+                upvote_query=select(func.count()).where(VoteTable.post_id == postId, VoteTable.value == 1)
+                upvoteCount = session.exec(upvote_query).first() or 0
+        
+                return upvoteCount
+        except Exception as e:
+            print(f"Error fetching upvote count: {e}")
+            return None
+
+    @classmethod
+    def get_downvote_count(cls, postId):
+        try:
+            with cls.get_session() as session:
+                downvote_query=select(func.count()).where(VoteTable.post_id == postId, VoteTable.value == -1)
+                downvoteCount = session.exec(downvote_query).first() or 0
+        
+                return downvoteCount
+        except Exception as e:
+            print(f"Error fetching downvote count: {e}")
+            return None
+#         cls.write(tableElement=tableElement)

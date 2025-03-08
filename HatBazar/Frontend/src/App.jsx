@@ -23,6 +23,14 @@ import PaymentFailurePage from "./pages/marketplace/failureOrder";
 import PaymentCancelledPage from "./pages/marketplace/paymentCancelledPage";
 
 
+import PostBrowsePage from "./pages/newcommunity/PostBrowsePage";
+import CommentsPage from "./components/newcommunity/CommentsPage";
+
+import InvestmentOfferBrowsePage from "./pages/newinvestment/InvestmentOfferBrowsePage";
+import InvestmentBidPage from "./components/newinvestment/InvestmentBidPage";
+import AcceptOffer from './components/newinvestment/AcceptOffer.jsx'
+
+
 const App = () => {
   return (
     <Router>
@@ -34,9 +42,9 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/marketplace" element={<MarketPlace />} />
         <Route path="/community" element={<Forum />} />
-        <Route path="/invest" element={<InvestmentPage />} />
+        { /*<Route path="/invest" element={<InvestmentPage />} />
         <Route path="/investcreate" element={<InvestmentCreatePage />} />
-        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />
+        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />*/}
         <Route path="/contract" element={<ContractSection />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/delivery-address" element={<DeliveryAddress />} />
@@ -47,6 +55,15 @@ const App = () => {
         {/* <Route path="/payment" element={<PaymentMethod />} /> */}
         {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
         {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
+
+
+        <Route path="/newcommunity" element={<PostBrowsePage />} />
+        <Route path="/comments/:id" element={<CommentsPage />} />
+
+        <Route path="/newinvestment" element={<InvestmentOfferBrowsePage />} />
+        <Route path="/bids/:offer_id" element={<InvestmentBidPage />} />
+        <Route path="/accept-offer/:offer_id" element={<AcceptOffer />} />
+
       </Routes>
     </Router>
     

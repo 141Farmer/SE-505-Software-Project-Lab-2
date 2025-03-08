@@ -7,9 +7,9 @@ from schemas import OfferResponse, BidResponse, InvestmentResponse
 router = APIRouter(prefix='', tags=['Investment'])
 investment=Investment()
 
-@router.post("/makeoffer/")
-def makeInvestmentOffer(farm_id: int, user_id: int, investmentResponse: InvestmentResponse):
-        return investment.makeOffer(farm_id, user_id, investmentResponse)
+@router.post("/makeinvestment/{offerId}")
+def makeInvestmentOffer(investmentResponse: InvestmentResponse, currentUser=Depends(AuthHandler.get_current_user)):
+        return investment.makeInvestment(investmentResponse, currentUser)
 
 
 @router.get("/getoffer/", response_model=List[OfferResponse])
@@ -17,6 +17,6 @@ def getInvestmentOffer():
         return investment.getOffer()
 
 
-@router.get("/getbid/", response_model=List[BidResponse])
-def getInvestmentBid(offerId: int):
-        return investment.getBid(offerId)
+@router.get("/getbid/{offer_id}", response_model=List[BidResponse])
+def getInvestmentBid(offer_id: int):
+        return investment.getBid(offer_id)

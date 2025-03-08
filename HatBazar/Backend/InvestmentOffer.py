@@ -1,7 +1,7 @@
 from Database import Database
 from schemas import OfferCreate, InvestmentResponse
 from sqlmodel import select, update
-from models import InvestmentOfferTable, FarmTable
+from models import InvestmentOfferTable, FarmTable, InvestmentBidTable
 from typing import List
 from datetime import datetime, timezone
 from fastapi import HTTPException
@@ -18,7 +18,7 @@ class Offer:
                               farm_id=farmId,
                               user_name=currentUser.username,
                               offer_description=investmentOffer.offer_description,
-                              offer_creation_time=investmentOffer.offer_creation_time,
+                              
                               offer_investment_principle=investmentOffer.offer_investment_principle,
                               offer_investment_rate=investmentOffer.offer_investment_rate,
                               offer_share_dividing_period_month=investmentOffer.offer_share_dividing_period_month,
@@ -52,6 +52,20 @@ class Offer:
                     if not message:
                               raise HTTPException(status_code=500, detail="Error returning offer message")
                     return {'message': 'Offer accepted successfully'}
+
+          def deleteOffer(self, offerId):
+                    query = select(InvestmentBidTable).where(InvestmentBidTable.investment_offer_id == offerId)
+                    bidtables = Database.read_all(query)
+
+
+                    for bidtable in bidtables:
+                              Database.delete(bidtable)
+
+                    query=select(InvestmentOfferTable).where(InvestmentOfferTable.id==offerId)
+                    offertable=Database.read_one(query)
+                    Database.delete(offertable)
+
+                    
 
 
           

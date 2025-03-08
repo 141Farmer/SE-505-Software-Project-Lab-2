@@ -10,8 +10,11 @@ const Navbar = () => {
 
   const navItems = [
     { name: 'Market', href: '/marketplace' },
-    { name: 'Invest', href: '/invest' },
-    { name: 'Community', href: '/community' },
+    { name: 'Invest', href: '/newinvestment' },
+    { name: 'Community', href: '/newcommunity' },
+//     { name: 'Contract', href: '/contract' },
+//     { name: 'Invest', href: '/invest' },
+//     { name: 'Community', href: '/community' },
     // { name: 'Contract', href: '/contract' },
   ];
 
