@@ -22,7 +22,7 @@ class Payment:
         self._tran_id = uuid4()
 
         success_url = "http://127.0.0.1:8000/payment/successful" if indicator == "sales" else "http://127.0.0.1:8000/payment/invest-successful"
-        failed_url = "http://127.0.0.1:8000/payment/failed" if indicator == "investment" else "http://127.0.0.1:8000/payment/invest-failed"
+        failed_url = "http://127.0.0.1:8000/payment/failed" if indicator == "sales" else "http://127.0.0.1:8000/payment/invest-failed"
 
         data = {
             'total_amount': f"{payment_amount}",

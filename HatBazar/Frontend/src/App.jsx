@@ -30,7 +30,8 @@ import InvestmentOfferBrowsePage from "./pages/newinvestment/InvestmentOfferBrow
 import InvestmentBidPage from "./components/newinvestment/InvestmentBidPage";
 import AcceptOffer from './components/newinvestment/AcceptOffer.jsx'
 // import OfferAcceptSuccess from "./components/newinvestment/offerAcceptSuccess.jsx";
-
+import InvestmentFailure from "./components/newinvestment/investFailure.jsx";
+import InvestmentSuccess from "./components/newinvestment/investSuccess.jsx";
 
 const App = () => {
   return (
@@ -64,7 +65,8 @@ const App = () => {
         <Route path="/newinvestment" element={<InvestmentOfferBrowsePage />} />
         <Route path="/bids/:offer_id" element={<InvestmentBidPage />} />
         <Route path="/accept-offer/:offer_id" element={<AcceptOffer />} />
-        {/* <Route path="/offer-accept-success" element={<OfferAcceptSuccess />} /> */}
+        <Route path="/invest-failure" element={<InvestmentFailure />} />
+        <Route path="/invest-success" element={<InvestmentSuccess />} />
 
       </Routes>
     </Router>

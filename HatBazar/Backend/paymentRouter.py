@@ -44,9 +44,9 @@ def payment_cancelled():
 
 @payment_router.post("/invest-successful")
 def payment_successful():
-    return RedirectResponse(url="http://localhost:5173/newinvestment", status_code=302)   #without status code = 302 error "method not allowed"
+    return RedirectResponse(url="http://localhost:5173/invest-success", status_code=302)   #without status code = 302 error "method not allowed"
 
 
 @payment_router.post("/invest-failed")
 def payment_failed():
-    return RedirectResponse(url="http://localhost:5173/newinvestment", status_code=302)
+    return RedirectResponse(url="http://localhost:5173/invest-failure", status_code=302)

@@ -143,7 +143,7 @@ const AcceptOffer = () => {
     console.log(investmentResponse);
     const investmentSuccess = await makeInvestment(investmentResponse, offer_id);
     if (investmentSuccess) {
-      alert('Investment created successfully!');
+      // alert('Investment created successfully!');
       const deleteSuccess = await deleteOffer(offer_id);
       handlePayment(offer);
 
