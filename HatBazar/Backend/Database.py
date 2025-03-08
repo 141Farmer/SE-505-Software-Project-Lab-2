@@ -107,3 +107,4 @@ class Database:
         except Exception as e:
             print(f"Error fetching downvote count: {e}")
             return None
+#         cls.write(tableElement=tableElement)

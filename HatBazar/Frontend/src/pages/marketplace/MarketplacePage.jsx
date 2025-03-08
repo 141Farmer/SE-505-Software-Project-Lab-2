@@ -3,6 +3,7 @@ import { Star, X, Package, User, Truck, Plus } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 import { toast } from "react-hot-toast";
 import FloatingCartButton from '../../components/Marketplace/FloatingCartButton';
+import Footer from '../../components/Footer';
 
 const MarketPlace = () => {
   const [products, setProducts] = useState([]);
@@ -120,33 +121,38 @@ const MarketPlace = () => {
   };
 
   const handleAddToCart = (product) => {
-    // Check if product is already in cart
     const existingProductIndex = cartItems.findIndex(
       (item) => item.product_id === product.product_id
     );
   
     let updatedCart;
     if (existingProductIndex > -1) {
-      // If product exists, increase its quantity
-      updatedCart = cartItems.map((item, index) => 
-        index === existingProductIndex 
-          ? { ...item, quantity: (item.quantity || 1) + 1 }
+      const newQuantity = (cartItems[existingProductIndex].quantity || 1) + 1;
+      if (newQuantity > product.stock_amount) {
+        toast.error("Insufficient stock! You cannot add more than the available quantity.");
+        return;
+      }
+  
+      updatedCart = cartItems.map((item, index) =>
+        index === existingProductIndex
+          ? { ...item, quantity: newQuantity }
           : item
       );
     } else {
-      // Add new product with quantity 1
+      if (1 > product.stock_amount) {
+        toast.error("Insufficient stock! You cannot add this product to the cart.");
+        return;
+      }
+  
       updatedCart = [...cartItems, { ...product, quantity: 1 }];
     }
   
-    // Update cart state and localStorage
     setCartItems(updatedCart);
     localStorage.setItem('cart', JSON.stringify(updatedCart));
-    
-    // Show success toast
+  
     toast.success("Product added to cart successfully!");
   };
 
-  // Rest of the component remains the same...
 
   return (
     <div className="min-h-screen bg-green-100">
@@ -333,7 +339,7 @@ const MarketPlace = () => {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <User className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-600">Farm: {selectedProduct.farm_name}</span>
+                      <span className="text-gray-600">Farm Owner: {selectedProduct.farm_name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Truck className="w-5 h-5 text-gray-600" />
@@ -350,17 +356,24 @@ const MarketPlace = () => {
                   <p className="text-gray-600">{selectedProduct.production_procedure}</p>
                 </div>
               </div>
+              
               <div className="flex justify-between items-center mt-6">
-              <div>
-                <span className="text-xl font-bold text-green-600">${selectedProduct.unit_price}</span>
+                <div>
+                  <span className="text-xl font-bold text-green-600">{selectedProduct.unit_price} tk</span>
+                </div>
+                {selectedProduct.stock_amount < 1 ? (
+                  <span className="text-red-600 font-semibold">Out of Stock</span>
+                ) : (
+                  <button
+                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+                    onClick={() => handleAddToCart(selectedProduct)}
+                  >
+                    Add to Cart
+                  </button>
+                )}
               </div>
-              <button 
-                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                onClick={() => handleAddToCart(selectedProduct)}
-              >
-                Add to Cart
-              </button>
-            </div>
+
+
           </div>
         </div>
       )}
@@ -368,7 +381,7 @@ const MarketPlace = () => {
 
       <FloatingCartButton cartItems={cartItems} />
 
-
+      <Footer/>
     </div>
   );
 };

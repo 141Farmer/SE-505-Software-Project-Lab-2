@@ -4,7 +4,7 @@ from AuthHandler import AuthHandler
 from User import User
 from ImageHandler import ImageHandler
 
-user_router = APIRouter()
+user_router = APIRouter(prefix="", tags=["User"])
 
 user = User()
 

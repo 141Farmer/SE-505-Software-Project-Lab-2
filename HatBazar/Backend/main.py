@@ -19,10 +19,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
 from userRouter import user_router
 from marketplaceRouter import marketplace_router
-
+from admin import setup_admin
 from AuthHandler import AuthHandler
 from Farm import Farm
-
+from paymentRouter import payment_router
+from orderRouter import order_router
 
 app = FastAPI()
 
@@ -34,10 +35,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-user=User()
 
 Database.create_db_and_tables()
+setup_admin(app, Database.engine)
 app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
 
 
 app.include_router(investment_router)
@@ -45,9 +48,13 @@ app.include_router(offer_router)
 app.include_router(bid_router)
 app.include_router(community_router)
 app.include_router(post_router)
-app.include_router(user_router, prefix="", tags=["User"])
-app.include_router(marketplace_router, prefix="/marketplace", tags=["Market"])
+app.include_router(user_router)
+app.include_router(marketplace_router)
+app.include_router(payment_router)
+app.include_router(order_router)
 
+
+user=User()
 
 
 @app.post("/token", response_model=LoginResponse)
