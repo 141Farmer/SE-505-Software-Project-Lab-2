@@ -23,6 +23,7 @@ from admin import setup_admin
 from AuthHandler import AuthHandler
 from Farm import Farm
 from paymentRouter import payment_router
+from orderRouter import order_router
 
 app = FastAPI()
 
@@ -50,6 +51,7 @@ app.include_router(post_router)
 app.include_router(user_router)
 app.include_router(marketplace_router)
 app.include_router(payment_router)
+app.include_router(order_router)
 
 
 user=User()

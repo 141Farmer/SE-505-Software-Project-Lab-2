@@ -60,16 +60,4 @@ class Payment:
         if not Database.write(db_payment):
             print(store_success)
 
-        # query = select(AccountTable).where(AccountTable.username == username)
-        # old_account = Database.read_one(query=query)
-        # if not old_account:
-        #     db_new_account = AccountTable(username=username, balance_sales=payment_amount, total_balance=payment_amount)
-        #     Database.write(db_new_account)
-        #     return {"message": "Payment infos stored successfully."}
-
-        
-        # old_account.balance_sales += payment_amount
-        # old_account.total_balance += payment_amount
-        # Database.update(old_account)                          #eita eihane hobe na order er sathe hobe
-
         return {"order_number": {self._tran_id}}
