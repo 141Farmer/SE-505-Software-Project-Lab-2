@@ -46,7 +46,9 @@ class Payment:
         
         try:
             if response['status'] == 'SUCCESS':
-                return {"url": response["GatewayPageURL"]}
+                return {"url": response["GatewayPageURL"],
+                        "tran_id" : self._tran_id
+                        }
             else:
                 raise HTTPException(status_code=400, detail="Failed to create payment session")
         except Exception as e:
@@ -54,10 +56,10 @@ class Payment:
 
 
 
-    def storePaymentInfos(self, payment_amount, username):
-        db_payment = PaymentTable(username=username, amount=payment_amount, tran_id=self._tran_id, indicator="sales")
+    def storePaymentInfos(self, payment_amount, tran_id, username):
+        db_payment = PaymentTable(username=username, amount=payment_amount, tran_id=tran_id, indicator="sales")
         store_success = Database.write(db_payment)
-        if not Database.write(db_payment):
+        if not store_success:
             print(store_success)
 
-        return {"order_number": {self._tran_id}}
+        return {"order_number": {tran_id}}

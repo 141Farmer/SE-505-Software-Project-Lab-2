@@ -10,11 +10,9 @@ const ConfirmOrder = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Retrieve cart items from local storage
     const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
     setCartItems(savedCart);
 
-    // Calculate total price
     const totalProductPrice = savedCart.reduce((total, product) => {
       return total + (product.unit_price * product.quantity);
     }, 0);
@@ -61,13 +59,19 @@ const ConfirmOrder = () => {
         throw new Error(`Redirect request failed: ${redirectResponse.statusText}`);
       }
   
+      if (!redirectResponse.ok) {
+        throw new Error(`Redirect request failed: ${redirectResponse.statusText}`);
+      }
+
       const redirectData = await redirectResponse.json();
       
-      if (redirectData.url) {
+      if (redirectData.url && redirectData.tran_id) {  // UPDATED: Check for both URL & tran_id
+        localStorage.setItem("tran_id", redirectData.tran_id);  // UPDATED: Store tran_id for later use
         window.location.href = redirectData.url;
-    } else {
+      } else {
         throw new Error("No redirect URL received");
       }
+
     } catch (error) {
       console.error("Error during payment processing:", error);
       alert(`Payment processing error: ${error.message}`);

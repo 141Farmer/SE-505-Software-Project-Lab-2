@@ -338,7 +338,7 @@ const MarketPlace = () => {
                   <div className="mt-4 space-y-3">
                     <div className="flex items-center gap-2">
                       <User className="w-5 h-5 text-gray-600" />
-                      <span className="text-gray-600">Farm: {selectedProduct.farm_name}</span>
+                      <span className="text-gray-600">Farm Owner: {selectedProduct.farm_name}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Truck className="w-5 h-5 text-gray-600" />
@@ -358,7 +358,7 @@ const MarketPlace = () => {
               
               <div className="flex justify-between items-center mt-6">
                 <div>
-                  <span className="text-xl font-bold text-green-600">${selectedProduct.unit_price}</span>
+                  <span className="text-xl font-bold text-green-600">{selectedProduct.unit_price} tk</span>
                 </div>
                 {selectedProduct.stock_amount < 1 ? (
                   <span className="text-red-600 font-semibold">Out of Stock</span>

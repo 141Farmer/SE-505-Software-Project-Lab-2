@@ -11,6 +11,9 @@ payment_router = APIRouter(prefix="/payment", tags=["Payment"])
 class GetPayment(BaseModel):
     payment_amount: float
 
+class GetPaymentInfo(BaseModel):
+    payment_amount: float
+    tran_id: str
 
 payment = Payment()
 
@@ -20,8 +23,8 @@ def makePayment(paymentReq: GetPayment, current_user = Depends(AuthHandler.get_c
     return payment.makePayment(paymentReq.payment_amount)
 
 @payment_router.post("/storepaymentinfos")
-def storePaymentInfos(paymentInfos: GetPayment, current_user = Depends(AuthHandler.get_current_user)):
-    return payment.storePaymentInfos(paymentInfos.payment_amount, current_user.username)
+def storePaymentInfos(paymentInfos: GetPaymentInfo, current_user = Depends(AuthHandler.get_current_user)):
+    return payment.storePaymentInfos(paymentInfos.payment_amount, paymentInfos.tran_id, current_user.username)
 
 
 @payment_router.post("/successful")
