@@ -92,7 +92,7 @@ const InvestmentOfferBrowsePage = () => {
                               onClick={() => handleBidsClick(offer.offer_id)}
                               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
                     >
-                              Bids of Investment
+                              Bids 
                     </button>
                     <button
                               onClick={() => handleAcceptOffer(offer)} // Pass offer_id via URL

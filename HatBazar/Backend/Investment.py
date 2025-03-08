@@ -7,7 +7,8 @@ from datetime import datetime, timezone
 
 class Investment:
 
-          def makeInvestment(self, offerId: int, investmentResponse: InvestmentResponse, currentUser):
+          def makeInvestment(self, investmentResponse: InvestmentResponse, currentUser):
+                    offerId=investmentResponse.offer_id
                     query=select(InvestmentOfferTable).where(InvestmentOfferTable.id==offerId)
                     offertable=Database.read_one(query)
 

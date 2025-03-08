@@ -35,7 +35,7 @@ const deleteOffer = async (offerId) => {
 };
 
 // Function to create a new investment
-     const makeInvestment = async (offerId, investmentResponse) => {
+     const makeInvestment = async (investmentResponse, offerId) => {
           try {
                     const token = localStorage.getItem('token'); 
                         console.log(investmentResponse);
@@ -84,6 +84,7 @@ const AcceptOffer = () => {
 
     // Step 3: Create a new investment
     const investmentResponse = {
+      offer_id: offer_id,
       principle: offer.offer_investment_principle, // Use data from the offer
       rate: offer.offer_investment_rate, // Use data from the offer
       share_dividing_month: offer.offer_share_dividing_period_month, // Use data from the offer
@@ -92,7 +93,7 @@ const AcceptOffer = () => {
 
     
     console.log(investmentResponse);
-    const investmentSuccess = await makeInvestment(offer_id, investmentResponse);
+    const investmentSuccess = await makeInvestment(investmentResponse, offer_id);
     if (investmentSuccess) {
       alert('Investment created successfully!');
       const deleteSuccess = await deleteOffer(offer_id);

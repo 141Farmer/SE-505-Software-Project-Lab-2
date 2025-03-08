@@ -130,6 +130,7 @@ class BidCreate(BaseModel):
     bid_investment_duration_month: int 
 
 class InvestmentResponse(BaseModel):
+    offer_id: int
     principle: float 
     rate: float 
     share_dividing_month: int 

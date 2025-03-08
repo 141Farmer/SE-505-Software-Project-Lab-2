@@ -8,8 +8,8 @@ router = APIRouter(prefix='', tags=['Investment'])
 investment=Investment()
 
 @router.post("/makeinvestment/{offerId}")
-def makeInvestmentOffer(offerId: int, investmentResponse: InvestmentResponse, currentUser=Depends(AuthHandler.get_current_user)):
-        return investment.makeInvestment(offerId, investmentResponse, currentUser)
+def makeInvestmentOffer(investmentResponse: InvestmentResponse, currentUser=Depends(AuthHandler.get_current_user)):
+        return investment.makeInvestment(investmentResponse, currentUser)
 
 
 @router.get("/getoffer/", response_model=List[OfferResponse])

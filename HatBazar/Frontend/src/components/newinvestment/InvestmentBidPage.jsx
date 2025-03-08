@@ -24,7 +24,7 @@ const InvestmentBidPage = () => {
           console.log('Response Status:', response.status); // Log the status code
         }
       } catch (error) {
-        setError('Error fetching bid details');
+        setError('No bids yest');
         console.error('Error:', error); // Log the error
       } finally {
         setLoading(false); // Set loading to false after fetching
