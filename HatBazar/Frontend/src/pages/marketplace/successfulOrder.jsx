@@ -6,52 +6,46 @@ const PaymentSuccess = () => {
   const [paymentStatus, setPaymentStatus] = useState("processing");
   const cartTotalPrice = localStorage.getItem("cartTotalPrice");
   const authToken = localStorage.getItem("token");
-  const cart = localStorage.getItem("cart");
-  const cartItems = cart ? JSON.parse(cart) : [];
-  const delivery_address = localStorage.getItem("deliveryAddress");
-  const tran_id = localStorage.getItem("tran_id");
-
-  // Prevent multiple API calls
-  const hasRun = useRef(false);
+  const cart = localStorage.getItem('cart');
+  const cartItems = cart ? JSON.parse(cart) : [];  
+  const delivery_address = localStorage.getItem('deliveryAddress');
+  const hasSubmitted = useRef(false); // Ref to track submission
 
   useEffect(() => {
-    if (!tran_id || localStorage.getItem("paymentProcessed") || hasRun.current) {
-      console.log("Payment already processed or tran_id missing.");
-      return;
-    }
-    hasRun.current = true; // ✅ Ensures it only runs once
-
     const storePaymentInfo = async () => {
+      if (hasSubmitted.current) return; // Prevent double submission
+      hasSubmitted.current = true; // Mark as submitted
+
+      const tran_id = localStorage.getItem("tran_id");
       try {
-        // Store payment info
         const response = await fetch("http://127.0.0.1:8000/payment/storepaymentinfos/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${authToken}`,
           },
-          body: JSON.stringify({
+          body: JSON.stringify({ 
             payment_amount: cartTotalPrice,
-            tran_id: tran_id,
+            tran_id: tran_id
           }),
         });
 
-        if (!response.ok) {
-          throw new Error("Failed to store payment info");
+        if (response.ok) {
+          setPaymentStatus("success");
+        } else {
+          setPaymentStatus("failed");
         }
-        
-        setPaymentStatus("success");
 
-        // Order data
         const orderData = {
           delivery_address: delivery_address,
-          products: cartItems.map((item) => ({
+          tran_id: tran_id,
+          products: cartItems.map(item => ({
             product_id: item.product_id,
-            quantity: item.quantity,
-          })),
+            quantity: item.quantity
+          }))
         };
 
-        // Place the order
+        console.log(orderData);
         const orderResponse = await fetch("http://127.0.0.1:8000/order", {
           method: "POST",
           headers: {
@@ -62,28 +56,23 @@ const PaymentSuccess = () => {
         });
 
         if (!orderResponse.ok) {
-          throw new Error("Failed to place order");
+          console.log("Error happened!!");
+        } else {
+          const data = await orderResponse.json(); // ✅ Parse response JSON
+          console.log("Order Response:", data);
+          localStorage.removeItem('cart');
+          localStorage.removeItem('cartTotalPrice');
+          localStorage.removeItem("tran_id");
         }
 
-        const data = await orderResponse.json();
-        console.log("Order Response:", data);
-
-        // Mark as processed to prevent duplicate submission
-        localStorage.setItem("paymentProcessed", "true");
-
-        // Clear cart-related data
-        localStorage.removeItem("cart");
-        localStorage.removeItem("cartTotalPrice");
-        localStorage.removeItem("tran_id");
-
       } catch (error) {
-        console.error("Error:", error);
+        console.error("Error storing payment info:", error);
         setPaymentStatus("failed");
       }
     };
 
     storePaymentInfo();
-  }, []); // ✅ Empty dependency array ensures it runs only on mount
+  }, [authToken, cartTotalPrice, delivery_address, cartItems]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-100">

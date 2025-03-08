@@ -18,6 +18,7 @@ class Product(BaseModel):
 
 class OrderRequest(BaseModel):
     delivery_address: str
+    tran_id: str
     products: List[Product]
 
 @order_router.post("/")
@@ -25,11 +26,12 @@ async def receive_order(order: OrderRequest, current_user = Depends(AuthHandler.
     
     order_items  = [(product.product_id, product.quantity) for product in order.products] 
     delivery_adddress = order.delivery_address
+    tran_id = order.tran_id
 
     query = select(UserTable).where(UserTable.username == current_user.username)
     user_id = Database.read_one(query).id
 
-    payment_id_query = select(PaymentTable).where(PaymentTable.username == current_user.username)
+    payment_id_query = select(PaymentTable).where(PaymentTable.tran_id == tran_id)
     payment_id = Database.read_one(query=payment_id_query).id
 
     order_object = Order()
