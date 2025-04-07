@@ -11,6 +11,9 @@ env/
 venv/
 .venv/
 
+# ignoring static file
+/static/
+
 # Environment variables
 .env
 .env.*

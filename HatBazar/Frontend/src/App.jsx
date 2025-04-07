@@ -10,12 +10,33 @@ import InvestmentCreatePage from "./pages/investment/InvestmentCreatePage";
 import InvestmentBrowsePage from "./pages/investment/InvestmentBrowsePage";
 import Forum from "./pages/community/Forum";
 import ContractSection from "./components/ContractSection";
+import { Toaster } from "react-hot-toast";
+import Cart from "./pages/marketplace/cart";
+// import Checkout from "./pages/marketplace/Checkout"
+import DeliveryAddress from "./pages/marketplace/DeliveryAddress";
+// import PaymentMethod from "./pages/marketplace/Payment";
+// import OrderSummary from "./pages/marketplace/OrderSummary";
+// import OrderConfirmation from "./pages/marketplace/OrderConfirmation";
+import ConfirmOrder from "./pages/marketplace/ConfirmOrder";
+import PaymentSuccess from "./pages/marketplace/successfulOrder";
+import PaymentFailurePage from "./pages/marketplace/failureOrder";
+import PaymentCancelledPage from "./pages/marketplace/paymentCancelledPage";
 
 
+import PostBrowsePage from "./pages/newcommunity/PostBrowsePage";
+import CommentsPage from "./components/newcommunity/CommentsPage";
+
+import InvestmentOfferBrowsePage from "./pages/newinvestment/InvestmentOfferBrowsePage";
+import InvestmentBidPage from "./components/newinvestment/InvestmentBidPage";
+import AcceptOffer from './components/newinvestment/AcceptOffer.jsx'
+// import OfferAcceptSuccess from "./components/newinvestment/offerAcceptSuccess.jsx";
+import InvestmentFailure from "./components/newinvestment/investFailure.jsx";
+import InvestmentSuccess from "./components/newinvestment/investSuccess.jsx";
 
 const App = () => {
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
         <Route path="/" element={<LandingPage />}></Route>
         <Route path="/login" element={<LoginPage />} />
@@ -23,12 +44,33 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/marketplace" element={<MarketPlace />} />
         <Route path="/community" element={<Forum />} />
-        <Route path="/invest" element={<InvestmentPage />} />
+        { /*<Route path="/invest" element={<InvestmentPage />} />
         <Route path="/investcreate" element={<InvestmentCreatePage />} />
-        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />
+        <Route path="/investbrowse" element={<InvestmentBrowsePage />} />*/}
         <Route path="/contract" element={<ContractSection />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/delivery-address" element={<DeliveryAddress />} />
+        <Route path="/confirm-order" element={<ConfirmOrder />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
+        <Route path="/payment-failure" element={<PaymentFailurePage />} />
+        <Route path="/payment-cancelled" element={<PaymentCancelledPage />} />
+        {/* <Route path="/payment" element={<PaymentMethod />} /> */}
+        {/* <Route path="/order-summary" element={<OrderSummary />} /> */}
+        {/* <Route path="/order-confirmation" element={<OrderConfirmation />} /> */}
+
+
+        <Route path="/newcommunity" element={<PostBrowsePage />} />
+        <Route path="/comments/:id" element={<CommentsPage />} />
+
+        <Route path="/newinvestment" element={<InvestmentOfferBrowsePage />} />
+        <Route path="/bids/:offer_id" element={<InvestmentBidPage />} />
+        <Route path="/accept-offer/:offer_id" element={<AcceptOffer />} />
+        <Route path="/invest-failure" element={<InvestmentFailure />} />
+        <Route path="/invest-success" element={<InvestmentSuccess />} />
+
       </Routes>
     </Router>
+    
   );
 };
 

@@ -1,93 +1,97 @@
-from fastapi import Depends, FastAPI, HTTPException
+from pathlib import Path
+from fastapi import Depends, FastAPI, File, HTTPException, UploadFile
+from fastapi.security import OAuth2PasswordRequestForm
+from fastapi.staticfiles import StaticFiles
 from sqlmodel import Session, select
-from database import engine, create_db_and_tables
-from models import User, Investor, Farm, Product
-from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse
-from schemas import CreateFarm, CreateFarmResponse, FarmUpdate
-from schemas import CreateProduct, CreateProductResponse, GetProductResponse
+from Database import Database
+from User import User
+from CommunityRouter import router as community_router
+from PostRouter import router as post_router
+from InvestmentRouter import router as investment_router
+from InvestmentBidRouter import router as bid_router
+from InvestmentOfferRouter import router as offer_router
+from Community import Community
+from models import UserTable, FarmTable, ProductTable
+from schemas import UserCreate, UserLogin, LoginResponse, DashBoardResponse, UpdateUser
+from schemas import CreateProductResponse, GetProductResponse, PostResponse
+from schemas import CreateFarm, CreateFarmResponse, FarmUpdate, LoginResponse
 from fastapi.middleware.cors import CORSMiddleware
-from jwt_handler import create_access_token, decode_access_token, get_password_hash, verify_password
-from current_user_handler import get_current_user
-
+from config import PROFILE_UPLOAD_DIR, PRODUCT_UPLOAD_DIR
+from userRouter import user_router
+from marketplaceRouter import marketplace_router
+from admin import setup_admin
+from AuthHandler import AuthHandler
+from Farm import Farm
+from paymentRouter import payment_router
+from orderRouter import order_router
 
 app = FastAPI()
 
-origins = [
-    "http://localhost:5173",
-    "http://localhost:5173/",
-    "http://127.0.0.1:5173",
-    "http://127.0.0.1:5173/"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins= ["*"],  #origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-create_db_and_tables()
+
+Database.create_db_and_tables()
+setup_admin(app, Database.engine)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 
-@app.post("/signup/", response_model=LoginResponse)
-def signup(user: UserCreate):
-    hashed_password = get_password_hash(user.password)
-    db_user = User(username=user.username, fullname=user.fullname, email=user.email, phone=user.phoneNumber, hashed_password=hashed_password)
-    with Session(engine) as session:
-        session.add(db_user)
-        session.commit()
-        session.refresh(db_user)
-        login_response = login(userLogin=UserLogin(username=user.username, password=user.password))
-        return LoginResponse(access_token=login_response.access_token, token_type=login_response.token_type)
+
+app.include_router(investment_router)
+app.include_router(offer_router)
+app.include_router(bid_router)
+app.include_router(community_router)
+app.include_router(post_router)
+app.include_router(user_router)
+app.include_router(marketplace_router)
+app.include_router(payment_router)
+app.include_router(order_router)
 
 
-
-@app.post("/login/", response_model=LoginResponse)
-def login(userLogin: UserLogin):
-    with Session(engine) as session:
-        query = select(User).where(User.username == userLogin.username)
-        db_user = session.exec(query).first()
-        
-        if not db_user:
-            raise HTTPException(status_code=404, detail="User not found!")
-        
-        if not verify_password(userLogin.password, db_user.hashed_password):
-            raise HTTPException(status_code=401, detail="Incorrect password!")
-        
-        access_token = create_access_token(data={"sub": db_user.username})
-
-        return LoginResponse(access_token=access_token, token_type="bearer")
+user=User()
 
 
-
-@app.get("/dashboard/", response_model=DashBoardResponse)
-def getDashBoard(current_user: User = Depends(get_current_user)):
-    return DashBoardResponse(
-        username=current_user.username,
-        fullname=current_user.fullname,
-        email=current_user.email,
-        phone=current_user.phone
-    )
+@app.post("/token", response_model=LoginResponse)
+async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+    return user.login(form_data.username, form_data.password)
 
 
+@app.get("/user-role")
+def getUserRole(current_user = Depends(AuthHandler.get_current_user)):
+    query = select(FarmTable).where(FarmTable.username == current_user.username)
+    if Database.read_one(query=query):
+        return {"role": "farm"}
+    return {"role": "user"}
 
-@app.post("/createfarm/", response_model=CreateFarmResponse)
-def createFarm(createFarm: CreateFarm):
-    with Session(engine) as session:
-        db_farm = Farm(user_id=createFarm.user_id)
-        session.add(db_farm)
-        session.commit()
-        session.refresh(db_farm)
-        return CreateFarmResponse(msg="Success", user_id=createFarm.user_id)
 
+@app.post("/createfarm/")              # response_model=CreateFarmResponse)
+def createFarm(createFarm: CreateFarm, current_user = Depends(AuthHandler.get_current_user)):
+    username = current_user.username
+    query = select(UserTable).where(UserTable.username == username)
+    db_user = Database.read_one(query=query)
+
+    farm = Farm(username=username, fullname=db_user.fullname,
+                email=db_user.email, phoneNumber= db_user.phone, profile_photo_url=db_user.profile_photo,
+                hashed_password=db_user.hashed_password, farmDescription=createFarm.farmDescription,
+                address=createFarm.address, employeeCount=createFarm.employee_count
+                )
+    if not farm:
+        raise HTTPException(status_code=400, detail="Error creating farm")
+    
+    return {"message" : "farm created successfully"}
+    
 
 
 @app.get("/getfarm/{farm_id}")
 def get_farm(farm_id: int):
-    with Session(engine) as session:
-        query = select(Farm).where(Farm.id == farm_id)
+    with Database.get_session() as session:
+        query = select(FarmTable).where(FarmTable.id == farm_id)
         farm = session.exec(query).first()
         return farm
 
@@ -95,8 +99,8 @@ def get_farm(farm_id: int):
 
 @app.put("/updatefarm/{farm_id}")
 def update_farm(farm_id: int, farm_update: FarmUpdate):
-    with Session(engine) as session:
-        farm = session.get(Farm, farm_id)
+    with Database.get_session() as session:
+        farm = session.get(FarmTable, farm_id)
         if not farm:
             raise HTTPException(status_code=404, detail="Farm not found")
         if farm_update.address is not None:
@@ -115,34 +119,34 @@ def update_farm(farm_id: int, farm_update: FarmUpdate):
 
 
 
-@app.post("/createproduct/", response_model=CreateProductResponse)
-def createProduct(createProduct: CreateProduct):
-    with Session(engine) as session:
-        db_product = Product(
-            farm_id=createProduct.farm_id,
-            product_name=createProduct.product_name,
-            product_image=createProduct.product_image,
-            unit_price=createProduct.unit_price,
-            stock_amount=createProduct.stock_amount,
-            production_procedure=createProduct.production_procedure
-        )
-        session.add(db_product)
-        session.commit()
-        session.refresh(db_product)
-        print(db_product)
-        return CreateProductResponse(
-            msg="Success",product_name=createProduct.product_name)
+# @app.post("/createproduct/", response_model=CreateProductResponse)
+# def createProduct(createProduct: CreateProduct):
+#     with Database.get_session() as session:
+#         db_product = ProductTable(
+#             farm_id=createProduct.farm_id,
+#             product_name=createProduct.product_name,
+#             product_image=createProduct.product_image,
+#             unit_price=createProduct.unit_price,
+#             stock_amount=createProduct.stock_amount,
+#             production_procedure=createProduct.production_procedure
+#         )
+#         session.add(db_product)
+#         session.commit()
+#         session.refresh(db_product)
+#         print(db_product)
+#         return CreateProductResponse(
+#             msg="Success",product_name=createProduct.product_name)
 
 
 
 @app.get("/getproduct/{product_id}", response_model=GetProductResponse)
 def get_product(product_id: int):
-    with Session(engine) as session:
-        query = select(Product).where(Product.id == product_id)
+    with Database.get_session as session:
+        query = select(ProductTable).where(ProductTable.id == product_id)
         product = session.exec(query).first()
         farm_id = product.farm_id
         print(farm_id)
-        query = select(Farm).where(Farm.id == farm_id)
+        query = select(FarmTable).where(FarmTable.id == farm_id)
         farm = session.exec(query).first()
         user_id = farm.user_id
         print(user_id)
@@ -158,3 +162,4 @@ def get_product(product_id: int):
             farm_addresss=product.farm.address,
             production_procedure=product.production_procedure
         )
+

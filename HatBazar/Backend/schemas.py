@@ -1,4 +1,6 @@
 from pydantic import BaseModel
+from datetime import datetime, timezone, date
+from fastapi import File, UploadFile
 
 class UserCreate(BaseModel):
     username: str
@@ -11,6 +13,14 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+
+class UpdateUser(BaseModel):
+    username: str | None
+    fullname: str | None
+    email: str | None
+    phoneNumber: str | None
+
+
 class LoginResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -20,9 +30,12 @@ class DashBoardResponse(BaseModel):
     fullname: str
     email: str
     phone: str
+    profile_photo_url: str | None
 
 class CreateFarm(BaseModel):
-    user_id: int 
+    farmDescription: str
+    address: str
+    employee_count: int
 
 class CreateFarmResponse(BaseModel):
     msg: str
@@ -34,26 +47,92 @@ class FarmUpdate(BaseModel):
     farm_description: str
     employee_count: int
 
-class CreateProduct(BaseModel):
-    farm_id: int
-    product_name: str
-    product_image: str
-    unit_price: float
-    stock_amount: int
-    production_procedure: str
-
 class CreateProductResponse(BaseModel):
     msg: str
     # product_id: int
     product_name: str
 
 class GetProductResponse(BaseModel):
-    # product_id: int # not be shown
-    product_image: str
+    product_id: int
     product_name: str
+    package_detail: str
+    product_image: str  |None
     rating: float | None
     unit_price: float
     stock_amount: int
     farm_name: str
     farm_addresss: str | None
     production_procedure: str | None
+
+
+class PostResponse(BaseModel):
+    post_id: int
+    user_name: str
+    post_title: str
+    post_content: str
+    upvote_count: int 
+    downvote_count: int
+    posted_time: datetime
+
+class PostCreate(BaseModel):
+    post_title: str
+    post_content: str
+
+class CommentResponse(BaseModel):
+    comment_id: int
+    user_name: str
+    comment_text: str
+    commented_time: datetime
+
+class CommentCreate(BaseModel):
+    post_id: int
+    comment: str
+
+class VoteCreate(BaseModel):
+    voteValue: int
+    post_id: int
+
+class VoteCount(BaseModel):
+    upvote_count: int
+    downvote_count: int
+
+class OfferResponse(BaseModel):
+    offer_id: int
+    user_name: str  
+    offer_description: str 
+    offer_creation_time: datetime 
+    offer_investment_principle: float 
+    offer_investment_rate: float 
+    offer_share_dividing_period_month: int 
+    offer_investment_duration_month: int 
+
+class OfferCreate(BaseModel):
+    offer_description: str
+    offer_investment_principle: float 
+    offer_investment_rate: float 
+    offer_share_dividing_period_month: int 
+    offer_investment_duration_month: int 
+
+class BidResponse(BaseModel):
+    bid_id: int
+    user_name: str
+    bid_creation_time: datetime 
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int
+
+class BidCreate(BaseModel):
+    bid_investment_principle: float 
+    bid_investment_rate: float 
+    bid_share_dividing_period_month: int 
+    bid_investment_duration_month: int 
+
+class InvestmentResponse(BaseModel):
+    offer_id: int
+    principle: float 
+    rate: float 
+    share_dividing_month: int 
+    duration_month: int 
+
+ 

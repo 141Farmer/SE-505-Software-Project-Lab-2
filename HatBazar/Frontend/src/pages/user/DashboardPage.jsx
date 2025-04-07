@@ -1,21 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Leaf, 
   LogOut, 
-  Trash2, 
+  Trash2,
   ChevronDown,
   Phone,
   Mail,
+  Edit,
+  Save,
+  X,
+  Upload,
+  Camera
 } from 'lucide-react';
 import Navbar from '../../components/Navbar/Navbar';
 
 const Dashboard = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [userInfoCard, setUserInfoCard] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedUser, setEditedUser] = useState({});
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
 
   const fetchUserInfo = async () => {
     try {
-      const token = localStorage.getItem('token'); // Retrieve the token
+      const token = localStorage.getItem('token');
       if (!token) {
         throw new Error('No token found');
       }
@@ -24,7 +38,7 @@ const Dashboard = () => {
         method: 'GET',
         headers: {
           'Accept': 'application/json',
-          'Authorization': `Bearer ${token}`, // Include the token in the headers
+          'Authorization': `Bearer ${token}`,
         },
       });
   
@@ -43,10 +57,17 @@ const Dashboard = () => {
   useEffect(() => {
     const getUserInfo = async () => {
       const userInfo = await fetchUserInfo();
+      console.log(userInfo);
       if (!userInfo) {
         window.location.href = '/login';
       } else {
         setUserInfoCard(userInfo);
+        setEditedUser(userInfo);
+        // If user has a profile image set it here
+        if (userInfo.profile_photo_url) {
+          // console.log(profileImage)
+          setImagePreview(userInfo.profile_photo_url);
+        }
       }
     };
   
@@ -58,8 +79,205 @@ const Dashboard = () => {
     window.location.href = '/login';
   };
 
-  const handleDeleteAccount = () => {
-    console.log('Deleting account...');
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete your account? This action cannot be undone.");
+    if (!confirmDelete) return;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/deleteuser/", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.detail || "Failed to delete account");
+        }
+
+        alert("Account deleted successfully.");
+        localStorage.removeItem('token');
+        window.location.href = "/";
+    } catch (error) {
+        console.error("Error deleting account:", error);
+        alert("Error: " + error.message);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedUser(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleStartEditing = () => {
+    setIsEditing(true);
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
+  const handleCancelEditing = () => {
+    setIsEditing(false);
+    setEditedUser(userInfoCard);
+    setErrorMessage('');
+    setSuccessMessage('');
+  };
+
+  const validateEmail = (email) => {
+    const emailRegex =  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:\.[a-zA-Z]{2,})?$/;
+    return emailRegex.test(email);
+  };
+
+  const handleSaveChanges = async () => {
+    setIsSubmitting(true);
+    setErrorMessage('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      if (!validateEmail(editedUser.email)) {
+        throw new Error('Invalid email format');
+      }
+
+      // Create payload with proper field names for backend
+      const payload = {
+        username: editedUser.username,
+        fullname: editedUser.fullname,
+        email: editedUser.email,
+        phoneNumber: editedUser.phone // Rename to match backend expectation
+      };
+
+      console.log('Update request payload:', payload);
+
+      const response = await fetch('http://127.0.0.1:8000/updateuser/', {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          // 'Authorization': `Bearer ${token}`,      #eita dile backend e get_current_user diye check korte hoy
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Try to get response text or JSON
+      let responseData;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await response.json();
+      } else {
+        responseData = { message: await response.text() };
+      }
+
+      console.log('Response status:', response.status);
+      console.log('Response data:', responseData);
+
+      if (!response.ok) {
+        throw new Error(
+          responseData.detail || 
+          responseData.message || 
+          `Server error (${response.status})`
+        );
+      }
+
+      setUserInfoCard(editedUser);
+      setIsEditing(false);
+      setSuccessMessage('Profile updated successfully!');
+      
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      setErrorMessage(`Update failed: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Check if file is an image
+    if (!file.type.startsWith('image/')) {
+      setErrorMessage('Please select an image file.');
+      return;
+    }
+
+    // Check file size (limit to 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setErrorMessage('Image size should be less than 5MB.');
+      return;
+    }
+
+    setProfileImage(file);
+    
+    // Create a preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
+  const uploadProfileImage = async () => {
+    if (!profileImage) return;
+    
+    setIsUploadingImage(true);
+    setErrorMessage('');
+    
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No token found');
+      }
+
+      const formData = new FormData();
+      formData.append('file', profileImage);
+
+      const response = await fetch('http://127.0.0.1:8000/upload-profile-image/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to upload image');
+      }
+
+      const data = await response.json();
+      
+      // Update user info with new image URL
+      setUserInfoCard(prev => ({
+        ...prev,
+        profileImage: data.imageUrl
+      }));
+      
+      setSuccessMessage('Profile picture updated successfully!');
+      
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+    } catch (error) {
+      console.error('Error uploading profile image:', error);
+      setErrorMessage(`Upload failed: ${error.message}`);
+    } finally {
+      setIsUploadingImage(false);
+    }
   };
 
   if (!userInfoCard) {
@@ -68,12 +286,10 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-green-50">
-      {/* Add the Navbar component here */}
       <Navbar />
 
       <div className="p-8">
         <div className="max-w-6xl mx-auto">
-          {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div className="flex items-center gap-3">
               <Leaf className="h-8 w-8 text-green-600" />
@@ -81,47 +297,174 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Profile Card */}
-          <div className="bg-white p-6 rounded-lg shadow-lg border border-green-100">
-            <div className="flex items-center gap-4 mb-6">
-              <img
-                src="do it form backend"
-                alt="Profile"
-                className="w-20 h-20 rounded-full border-2 border-green-600"
-              />
-              <div>
-                <h2 className="text-2xl font-semibold text-green-800">{userInfoCard.fullname}</h2>
-                <p className="text-gray-600">{userInfoCard.username}</p>
-              </div>
+          {successMessage && (
+            <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
+              {successMessage}
             </div>
+          )}
+
+          {errorMessage && (
+            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              {errorMessage}
+            </div>
+          )}
+
+          <div className="bg-white p-6 rounded-lg shadow-lg border border-green-100">
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <img
+                    src={imagePreview || "https://via.placeholder.com/150"}
+                    alt="Profile"
+                    className="w-20 h-20 rounded-full border-2 border-green-600 object-cover"
+                  />
+                  <button 
+                    onClick={triggerFileInput}
+                    className="absolute bottom-0 right-0 bg-green-600 text-white p-1 rounded-full hover:bg-green-700 transition-colors"
+                    title="Change profile picture"
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                    accept="image/*"
+                    className="hidden" 
+                  />
+                </div>
+                <div>
+                  {!isEditing ? (
+                    <>
+                      <h2 className="text-2xl font-semibold text-green-800">{userInfoCard.fullname}</h2>
+                      <p className="text-gray-600">{userInfoCard.username}</p>
+                      {profileImage && (
+                        <button
+                          onClick={uploadProfileImage}
+                          disabled={isUploadingImage}
+                          className={`mt-2 text-sm ${isUploadingImage ? 'bg-gray-400' : 'bg-green-600'} text-white px-2 py-1 rounded flex items-center`}
+                        >
+                          <Upload className="h-3 w-3 mr-1" />
+                          {isUploadingImage ? 'Uploading...' : 'Upload New Photo'}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <div className="space-y-2">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Full Name</label>
+                        <input
+                          type="text"
+                          name="fullname"
+                          value={editedUser.fullname || ''}
+                          onChange={handleInputChange}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 p-2 border"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700">Username</label>
+                        <input
+                          type="text"
+                          name="username"
+                          value={editedUser.username || ''}
+                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 p-2 border bg-gray-100"
+                          readOnly
+                        />
+                        <span className="text-xs text-gray-500">Username cannot be changed</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {!isEditing ? (
+                <button
+                  onClick={handleStartEditing}
+                  className="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors flex items-center"
+                >
+                  <Edit className="inline-block mr-2 h-4 w-4" />
+                  Edit Profile
+                </button>
+              ) : (
+                <div className="flex space-x-2">
+                  <button
+                    onClick={handleSaveChanges}
+                    disabled={isSubmitting}
+                    className={`${isSubmitting ? 'bg-green-400' : 'bg-green-600'} text-white px-4 py-2 rounded-full hover:bg-green-700 transition-colors flex items-center`}
+                  >
+                    <Save className="inline-block mr-2 h-4 w-4" />
+                    {isSubmitting ? 'Saving...' : 'Save'}
+                  </button>
+                  <button
+                    onClick={handleCancelEditing}
+                    disabled={isSubmitting}
+                    className="bg-gray-500 text-white px-4 py-2 rounded-full hover:bg-gray-600 transition-colors flex items-center"
+                  >
+                    <X className="inline-block mr-2 h-4 w-4" />
+                    Cancel
+                  </button>
+                </div>
+              )}
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <p className="flex items-center gap-2 text-green-700">
-                <Phone className="h-5 w-5" />
-                Phone: <span className="font-medium">{userInfoCard.phone}</span>
-              </p>
-              <p className="flex items-center gap-2 text-green-700">
-                <Mail className="h-5 w-5" />
-                Email: <span className="font-medium">{userInfoCard.email}</span>
-              </p>
+              {!isEditing ? (
+                <>
+                  <p className="flex items-center gap-2 text-green-700">
+                    <Phone className="h-5 w-5" />
+                    Phone: <span className="font-medium">{userInfoCard.phone}</span>
+                  </p>
+                  <p className="flex items-center gap-2 text-green-700">
+                    <Mail className="h-5 w-5" />
+                    Email: <span className="font-medium">{userInfoCard.email}</span>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <Phone className="h-4 w-4 inline mr-1" /> Phone
+                    </label>
+                    <input
+                      type="text"
+                      name="phone"
+                      value={editedUser.phone || ''}
+                      onChange={handleInputChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 p-2 border"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <Mail className="h-4 w-4 inline mr-1" /> Email
+                    </label>
+                    <input
+                      // type="email"
+                      name="email"
+                      value={editedUser.email || ''}
+                      onChange={handleInputChange}
+                      className="block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring focus:ring-green-200 p-2 border"
+                    />
+                  </div>
+                </>
+              )}
             </div>
           </div>
+          
           <div className="mt-8 flex space-x-4">
-              <button
-                onClick={handleLogout}
-                className="w-full md:w-auto bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors"
-              >
-                <LogOut className="inline-block mr-2 h-5 w-5" />
-                Logout
-              </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="w-full md:w-auto bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors"
-              >
-                <Trash2 className="inline-block mr-2 h-5 w-5" />
-                Delete Account
-              </button>
-            </div>
-
+            <button
+              onClick={handleLogout}
+              className="w-full md:w-auto bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors"
+            >
+              <LogOut className="inline-block mr-2 h-5 w-5" />
+              Logout
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              className="w-full md:w-auto bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 transition-colors"
+            >
+              <Trash2 className="inline-block mr-2 h-5 w-5" />
+              Delete Account
+            </button>
+          </div>
         </div>
       </div>
     </div>

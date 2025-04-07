@@ -1,61 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import SubNavbar from '../../components/SubNavbar/SubNavbar';
 import HandleNegotiate from '../../components/investment/HandleNegotiate';
 
 function InvestmentBrowsePage() {
-  // State for the current tab
   const [currentTab, setCurrentTab] = useState('browse');
-
-  // Example active offers
-  const [activeOffers, setActiveOffers] = useState([
-    {
-      id: 1,
-      poster: "John Doe",
-      principle: 10000,
-      duration: 12,
-      profitRate: 15,
-      details: "Looking for investment in a tech startup.",
-      date: "22/01/2025",
-      negotiations: []
-    },
-    {
-      id: 2,
-      poster: "Jane Smith",
-      principle: 15000,
-      duration: 24,
-      profitRate: 12,
-      details: "Expanding an agricultural project.",
-      date: "12/01/2025",
-      negotiations: []
-    },
-    {
-      id: 3,
-      poster: "Kamrul",
-      principle: 1500000000,
-      duration: 60,
-      profitRate: 1,
-      details: "Expanding an agricultural project.",
-      date: "01/01/2025",
-      negotiations: []
-    },
-    {
-      id: 4,
-      poster: "Kibria",
-      principle: 200,
-      duration: 1,
-      profitRate: 20,
-      details: "Expanding an agricultural project.",
-      date: "01/02/2025",
-      negotiations: []
-    },
-  ]);
-
-  // Handle negotiations
+  const [activeOffers, setActiveOffers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [negotiationInputs, setNegotiationInputs] = useState({});
 
+  useEffect(() => {
+    const fetchOffers = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const response = await fetch('http://127.0.0.1:8000/getoffer/');
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setActiveOffers(data);
+      } catch (error) {
+        console.error('Error fetching offers:', error);
+        setError('Failed to fetch investment offers');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchOffers();
+  }, []);
+
   const handleInputChange = (offerId, field, value) => {
-    setNegotiationInputs((prevInputs) => ({
+    setNegotiationInputs(prevInputs => ({
       ...prevInputs,
       [offerId]: {
         ...prevInputs[offerId],
@@ -64,76 +45,94 @@ function InvestmentBrowsePage() {
     }));
   };
 
+  const renderLoading = () => (
+    <div className="text-center py-8 text-gray-600">
+      Loading investment offers...
+    </div>
+  );
+
+  const renderError = () => (
+    <div className="text-center py-8 text-red-600">
+      {error}
+    </div>
+  );
+
   const renderOffers = () => (
     <div>
-      {activeOffers.map((offer) => (
-        <div
-          key={offer.id}
-          className="p-4 mb-4 border rounded-lg bg-white shadow-sm"
-        >
-          <h2 className="text-lg font-semibold">{offer.poster}</h2>
-          <p>Principle: ${offer.principle}</p>
-          <p>Duration: {offer.duration} months</p>
-          <p>Profit Rate: {offer.profitRate}%</p>
-          <p>Details: {offer.details}</p>
+      {activeOffers.length === 0 ? (
+        <p className="text-center text-gray-500">No offers available</p>
+      ) : (
+        activeOffers.map((offer, offerIndex) => (
+          <div 
+            key={`offer-${offer.id || offerIndex}`} 
+            className="p-4 mb-4 border rounded-lg bg-white shadow-sm"
+          >
+            <h2 className="text-lg font-semibold">{offer.user_name}</h2>
+            <p>Principle: ${offer.offer_investment_principle}</p>
+            <p>Duration: {offer.offer_investment_duration_month} months</p>
+            <p>Profit Rate: {offer.offer_investment_rate}%</p>
+            <p>Details: {offer.offer_description}</p>
+            <p>Date: {new Date(offer.offer_creation_time).toLocaleDateString()}</p>
 
-          {/* Negotiation Form */}
-          <div className="mt-4 space-y-2">
-            <input
-              type="number"
-              placeholder="Proposed Principle"
-              value={negotiationInputs[offer.id]?.proposedPrinciple || ""}
-              onChange={(e) =>
-                handleInputChange(offer.id, "proposedPrinciple", e.target.value)
-              }
-              className="border p-2 w-full rounded-md"
-            />
-            <input
-              type="number"
-              placeholder="Proposed Duration (months)"
-              value={negotiationInputs[offer.id]?.proposedDuration || ""}
-              onChange={(e) =>
-                handleInputChange(offer.id, "proposedDuration", e.target.value)
-              }
-              className="border p-2 w-full rounded-md"
-            />
-            <input
-              type="number"
-              placeholder="Proposed Rate (%)"
-              value={negotiationInputs[offer.id]?.proposedRate || ""}
-              onChange={(e) =>
-                handleInputChange(offer.id, "proposedRate", e.target.value)
-              }
-              className="border p-2 w-full rounded-md"
-            />
-            <button
-              onClick={() =>
-                HandleNegotiate(offer.id, negotiationInputs, setActiveOffers, setNegotiationInputs)
-              }
-              className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md"
-            >
-              Negotiate
-            </button>
-          </div>
+            <div className="mt-4 space-y-2">
+              <input
+                type="number"
+                placeholder="Proposed Principle"
+                value={negotiationInputs[offer.id]?.proposedPrinciple || ""}
+                onChange={(e) => 
+                  handleInputChange(offer.id, "proposedPrinciple", e.target.value)
+                }
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="number"
+                placeholder="Proposed Duration (months)"
+                value={negotiationInputs[offer.id]?.proposedDuration || ""}
+                onChange={(e) => 
+                  handleInputChange(offer.id, "proposedDuration", e.target.value)
+                }
+                className="border p-2 w-full rounded-md"
+              />
+              <input
+                type="number"
+                placeholder="Proposed Rate (%)"
+                value={negotiationInputs[offer.id]?.proposedRate || ""}
+                onChange={(e) => 
+                  handleInputChange(offer.id, "proposedRate", e.target.value)
+                }
+                className="border p-2 w-full rounded-md"
+              />
+              <button
+                onClick={() => 
+                  HandleNegotiate(offer.id, negotiationInputs, setActiveOffers, setNegotiationInputs)
+                }
+                className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md"
+              >
+                Negotiate
+              </button>
+            </div>
 
-          {/* Negotiations */}
-          <div className="mt-4">
-            <h3 className="text-sm font-semibold">Negotiations:</h3>
-            {offer.negotiations.length > 0 ? (
-              offer.negotiations.map((negotiation) => (
-                <div
-                  key={negotiation.id}
-                  className="text-sm text-gray-600 border-t mt-2 pt-2"
-                >
-                  <strong>{negotiation.negotiator}:</strong> Proposed Principle: ${negotiation.proposedPrinciple}, Duration: {negotiation.proposedDuration} months, Rate: {negotiation.proposedRate}%
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-gray-400">No negotiations yet.</p>
-            )}
+            <div className="mt-4">
+              <h3 className="text-sm font-semibold">Negotiations:</h3>
+              {offer.negotiations && offer.negotiations.length > 0 ? (
+                offer.negotiations.map((negotiation, negotiationIndex) => (
+                  <div
+                    key={`negotiation-${negotiation.id || `${offer.id}-${negotiationIndex}`}`}
+                    className="text-sm text-gray-600 border-t mt-2 pt-2"
+                  >
+                    <strong>{negotiation.negotiator}:</strong> 
+                    Proposed Principle: ${negotiation.proposedPrinciple}, 
+                    Duration: {negotiation.proposedDuration} months, 
+                    Rate: {negotiation.proposedRate}%
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-400">No negotiations yet.</p>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
     </div>
   );
 
@@ -147,7 +146,11 @@ function InvestmentBrowsePage() {
       </div>
       <div className="pt-32 px-4">
         <div className="max-w-7xl mx-auto">
-          {currentTab === 'browse' && renderOffers()}
+          {currentTab === 'browse' && (
+            <>
+              {isLoading ? renderLoading() : error ? renderError() : renderOffers()}
+            </>
+          )}
         </div>
       </div>
       <div className="h-16" />
