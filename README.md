@@ -99,14 +99,7 @@ HatBazar/
 ├── package-lock.json
 ```
 
-## Documentation
-
-- Official proposals and timeline can be found in the [`Official-Documents`](./../Official-Documents) directory.
-
 ## License
 
 This project is for academic and demonstration purposes.
 
----
-
-> For questions or contributions, please open an issue or contact the maintainers.
